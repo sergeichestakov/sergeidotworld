@@ -97,8 +97,8 @@ export class MemStorage implements IStorage {
         latitude: location.latitude,
         longitude: location.longitude,
         type: "visited",
-        visitDate: location.visitDate || null,
-        notes: location.notes || null,
+        visitDate: location.visitDate,
+        notes: location.notes,
         updatedAt: new Date(),
       };
       this.locations.set(visitedLocation.id, visitedLocation);
