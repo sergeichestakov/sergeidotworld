@@ -12,16 +12,17 @@ export async function importFlightDataOnStartup() {
       return;
     }
 
-    // Check if we already have flight destinations imported
+    // Remove existing flight destinations to force re-import with updated data
     const existingLocations = await storage.getVisitedLocations();
-    const hasFlightDestinations = existingLocations.some(loc => 
+    const flightDestinations = existingLocations.filter(loc => 
       loc.notes && loc.notes.includes('Flight destination')
     );
-
-    if (hasFlightDestinations) {
-      console.log('Flight destinations already imported');
-      return;
+    
+    for (const dest of flightDestinations) {
+      await storage.deleteLocation(dest.id);
     }
+    
+    console.log(`Cleared ${flightDestinations.length} existing flight destinations`);
 
     console.log('Auto-importing flight destinations...');
     

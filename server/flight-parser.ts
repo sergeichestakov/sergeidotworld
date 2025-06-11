@@ -102,6 +102,20 @@ export function getUniqueDestinations(flights: FlightData[]): Array<{code: strin
   const destinations = new Map();
   
   flights.forEach(flight => {
+    // Add origin airport
+    if (flight.fromAirport) {
+      const key = flight.fromAirport.code;
+      if (destinations.has(key)) {
+        destinations.get(key).visitCount++;
+      } else {
+        destinations.set(key, {
+          ...flight.fromAirport,
+          visitCount: 1
+        });
+      }
+    }
+    
+    // Add destination airport
     if (flight.toAirport) {
       const key = flight.toAirport.code;
       if (destinations.has(key)) {
