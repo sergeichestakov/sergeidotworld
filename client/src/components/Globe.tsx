@@ -5,9 +5,10 @@ import { Location } from '@shared/schema';
 interface GlobeProps {
   locations: Location[];
   onLocationClick: (location: Location) => void;
+  showFlights?: boolean;
 }
 
-export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
+export default function Globe3D({ locations, onLocationClick, showFlights = false }: GlobeProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const globeRef = useRef<any>(null);
 
@@ -127,46 +128,51 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
         }
       });
 
-    // Load and display flight routes
-    fetch('/api/flights/routes')
-      .then(response => response.json())
-      .then(routes => {
-        const validRoutes = routes.filter((route: any) => 
-          route.from.latitude && route.from.longitude && 
-          route.to.latitude && route.to.longitude
-        );
+    // Load and display flight routes only if enabled
+    if (showFlights) {
+      fetch('/api/flights/routes')
+        .then(response => response.json())
+        .then(routes => {
+          const validRoutes = routes.filter((route: any) => 
+            route.from.latitude && route.from.longitude && 
+            route.to.latitude && route.to.longitude
+          );
 
-        // Add flight paths as arcs
-        globeRef.current
-          .arcsData(validRoutes)
-          .arcStartLat((d: any) => d.from.latitude)
-          .arcStartLng((d: any) => d.from.longitude)
-          .arcEndLat((d: any) => d.to.latitude)
-          .arcEndLng((d: any) => d.to.longitude)
-          .arcColor(() => '#ffb29a')
-          .arcAltitude(0.1)
-          .arcStroke(0.8)
-          .arcDashLength(1)
-          .arcDashGap(0)
-          .arcDashAnimateTime(0)
-          .arcLabel((d: any) => `
-            <div style="
-              background: rgba(0, 0, 0, 0.8); 
-              color: white; 
-              padding: 8px 12px; 
-              border-radius: 6px; 
-              font-size: 14px;
-              max-width: 250px;
-            ">
-              <strong>${d.airline} ${d.flightNumber}</strong><br/>
-              <span style="color: #ff6b35;">${d.from.name} → ${d.to.name}</span><br/>
-              <small>${d.date}</small>
-            </div>
-          `);
-      })
-      .catch(error => {
-        console.log('Flight routes not available:', error);
-      });
+          // Add flight paths as arcs
+          globeRef.current
+            .arcsData(validRoutes)
+            .arcStartLat((d: any) => d.from.latitude)
+            .arcStartLng((d: any) => d.from.longitude)
+            .arcEndLat((d: any) => d.to.latitude)
+            .arcEndLng((d: any) => d.to.longitude)
+            .arcColor(() => '#ffb29a')
+            .arcAltitude(0.1)
+            .arcStroke(0.8)
+            .arcDashLength(1)
+            .arcDashGap(0)
+            .arcDashAnimateTime(0)
+            .arcLabel((d: any) => `
+              <div style="
+                background: rgba(0, 0, 0, 0.8); 
+                color: white; 
+                padding: 8px 12px; 
+                border-radius: 6px; 
+                font-size: 14px;
+                max-width: 250px;
+              ">
+                <strong>${d.airline} ${d.flightNumber}</strong><br/>
+                <span style="color: #ffb29a;">${d.from.name} → ${d.to.name}</span><br/>
+                <small>${d.date}</small>
+              </div>
+            `);
+        })
+        .catch(error => {
+          console.log('Flight routes not available:', error);
+        });
+    } else {
+      // Clear flight routes when toggled off
+      globeRef.current?.arcsData([]);
+    }
 
     // Focus on current location initially
     const currentLocationPoint = pointsData.find(p => p.location.type === 'current');
@@ -177,7 +183,7 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
         altitude: 2
       }, 1000);
     }
-  }, [locations, onLocationClick]);
+  }, [locations, onLocationClick, showFlights]);
 
   const getMarkerSize = (type: string): number => {
     switch (type) {
@@ -208,7 +214,7 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
   const getLocationTypeLabel = (type: string): string => {
     switch (type) {
       case 'current':
-        return 'Current Location';
+        return 'Currently In';
       case 'home':
         return 'Home Base';
       case 'visited':

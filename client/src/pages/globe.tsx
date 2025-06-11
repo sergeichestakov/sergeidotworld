@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Globe, Settings, Plus, Minus, Home, Crosshair } from "lucide-react";
+import { Globe, Settings, Plus, Minus, Home, Crosshair, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import Globe3D from "@/components/Globe";
 import AdminDashboard from "@/components/AdminDashboard";
 import LocationModal from "@/components/LocationModal";
@@ -11,6 +13,7 @@ import type { LocationStats } from "@/lib/types";
 export default function GlobePage() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [showFlights, setShowFlights] = useState(false);
 
   const { data: locations = [], isLoading } = useQuery<Location[]>({
     queryKey: ["/api/locations"],
@@ -74,6 +77,7 @@ export default function GlobePage() {
         <Globe3D 
           locations={locations} 
           onLocationClick={handleLocationClick}
+          showFlights={showFlights}
         />
         
         {/* Globe Controls */}
