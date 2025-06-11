@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Globe from 'globe.gl';
 import { Location } from '@shared/schema';
 
@@ -8,7 +8,14 @@ interface GlobeProps {
   showFlights?: boolean;
 }
 
-export default function Globe3D({ locations, onLocationClick, showFlights = false }: GlobeProps) {
+export interface GlobeRef {
+  zoomIn: () => void;
+  zoomOut: () => void;
+  focusOnLocation: (lat: number, lng: number, altitude?: number) => void;
+  resetView: () => void;
+}
+
+const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, showFlights = false }, ref) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const globeRef = useRef<any>(null);
 
@@ -51,124 +58,81 @@ export default function Globe3D({ locations, onLocationClick, showFlights = fals
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      if (mountRef.current && mountRef.current.firstChild) {
-        mountRef.current.removeChild(mountRef.current.firstChild);
-      }
-    };
-  }, []);
-
-  // Animation loop for pulsing effect
-  useEffect(() => {
-    if (!globeRef.current) return;
-
-    const animate = () => {
       if (globeRef.current) {
-        // Force re-render to update pulsing points
-        globeRef.current.pointsData(globeRef.current.pointsData());
+        globeRef.current._destructor();
       }
-      requestAnimationFrame(animate);
     };
-    
-    const animationId = requestAnimationFrame(animate);
-    
-    return () => cancelAnimationFrame(animationId);
   }, []);
 
-  // Update markers and flight routes when locations change
   useEffect(() => {
-    if (!globeRef.current) return;
+    if (!globeRef.current || !locations.length) return;
 
-    // Prepare points data for Globe.gl
+    // Prepare points data
     const pointsData = locations.map(location => ({
       lat: location.latitude,
       lng: location.longitude,
       size: getMarkerSize(location.type),
       color: getMarkerColor(location.type),
-      label: location.name,
-      location: location,
-      isPulsing: location.type === 'current'
+      location: location
     }));
 
-    // Add points to globe
+    // Set points on globe
     globeRef.current
       .pointsData(pointsData)
       .pointAltitude(0.01)
-      .pointRadius((d: any) => {
-        if (d.isPulsing) {
-          // Create pulsing effect for current location
-          const time = Date.now() * 0.002;
-          const pulse = Math.sin(time) * 0.1 + 1;
-          return d.size * pulse;
-        }
-        return d.size;
-      })
+      .pointRadius('size')
       .pointColor('color')
-      .pointLabel((d: any) => `
+      .pointsMerge(false)
+      .pointLabel(d => `
         <div style="
-          background: rgba(0, 0, 0, 0.8); 
+          background: rgba(0,0,0,0.8); 
           color: white; 
           padding: 8px 12px; 
-          border-radius: 6px; 
-          font-size: 14px;
-          max-width: 200px;
+          border-radius: 8px; 
+          font-size: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         ">
-          <strong>${d.label}</strong><br/>
-          <span style="color: ${d.color};">${getLocationTypeLabel(d.location.type)}</span><br/>
-          <small>${d.lat.toFixed(4)}°, ${d.lng.toFixed(4)}°</small>
+          <div style="font-weight: bold; margin-bottom: 4px;">${getLocationTypeLabel(d.location.type)}</div>
+          <div>${d.location.name}</div>
+          <div style="font-size: 10px; color: #ccc; margin-top: 4px;">
+            ${d.lat.toFixed(4)}°, ${d.lng.toFixed(4)}°
+          </div>
         </div>
       `)
-      .onPointClick((point: any) => {
-        onLocationClick(point.location);
-      })
-      .onPointHover((point: any) => {
-        if (point) {
-          document.body.style.cursor = 'pointer';
-        } else {
-          document.body.style.cursor = 'auto';
+      .onPointClick((point) => {
+        if (point && point.location) {
+          onLocationClick(point.location);
         }
       });
 
-    // Load and display flight routes only if enabled
-    if (showFlights) {
-      fetch('/api/flights/routes')
-        .then(response => response.json())
-        .then(routes => {
-          const validRoutes = routes.filter((route: any) => 
-            route.from.latitude && route.from.longitude && 
-            route.to.latitude && route.to.longitude
-          );
+    // Handle flight routes
+    if (showFlights && locations.length > 0) {
+      // Get flight data from the server
+      fetch('/api/flights')
+        .then(res => res.json())
+        .then(flights => {
+          if (flights && flights.length > 0) {
+            const arcsData = flights
+              .filter(flight => flight.fromAirport && flight.toAirport)
+              .map(flight => ({
+                startLat: flight.fromAirport.latitude,
+                startLng: flight.fromAirport.longitude,
+                endLat: flight.toAirport.latitude,
+                endLng: flight.toAirport.longitude
+              }));
 
-          // Add flight paths as arcs
-          globeRef.current
-            .arcsData(validRoutes)
-            .arcStartLat((d: any) => d.from.latitude)
-            .arcStartLng((d: any) => d.from.longitude)
-            .arcEndLat((d: any) => d.to.latitude)
-            .arcEndLng((d: any) => d.to.longitude)
-            .arcColor(() => '#ffb29a')
-            .arcAltitude(0.1)
-            .arcStroke(0.8)
-            .arcDashLength(1)
-            .arcDashGap(0)
-            .arcDashAnimateTime(0)
-            .arcLabel((d: any) => `
-              <div style="
-                background: rgba(0, 0, 0, 0.8); 
-                color: white; 
-                padding: 8px 12px; 
-                border-radius: 6px; 
-                font-size: 14px;
-                max-width: 250px;
-              ">
-                <strong>${d.airline} ${d.flightNumber}</strong><br/>
-                <span style="color: #ffb29a;">${d.from.name} → ${d.to.name}</span><br/>
-                <small>${d.date}</small>
-              </div>
-            `);
+            globeRef.current
+              .arcsData(arcsData)
+              .arcColor('#ffab91')
+              .arcAltitude(0.1)
+              .arcStroke(0.5)
+              .arcDashLength(0.9)
+              .arcDashGap(4)
+              .arcDashAnimateTime(0)
+              .arcsTransitionDuration(0);
+          }
         })
-        .catch(error => {
-          console.log('Flight routes not available:', error);
-        });
+        .catch(err => console.warn('Failed to load flight data:', err));
     } else {
       // Clear flight routes when toggled off
       globeRef.current?.arcsData([]);
@@ -224,5 +188,37 @@ export default function Globe3D({ locations, onLocationClick, showFlights = fals
     }
   };
 
+  // Expose control methods via ref
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => {
+      if (globeRef.current) {
+        const controls = globeRef.current.controls();
+        const currentDistance = controls.getDistance();
+        controls.setDistance(Math.max(currentDistance * 0.8, controls.minDistance));
+      }
+    },
+    zoomOut: () => {
+      if (globeRef.current) {
+        const controls = globeRef.current.controls();
+        const currentDistance = controls.getDistance();
+        controls.setDistance(Math.min(currentDistance * 1.25, controls.maxDistance));
+      }
+    },
+    focusOnLocation: (lat: number, lng: number, altitude: number = 2) => {
+      if (globeRef.current) {
+        globeRef.current.pointOfView({ lat, lng, altitude }, 1000);
+      }
+    },
+    resetView: () => {
+      if (globeRef.current) {
+        globeRef.current.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 1000);
+      }
+    }
+  }));
+
   return <div ref={mountRef} className="absolute inset-0" />;
-}
+});
+
+Globe3D.displayName = 'Globe3D';
+
+export default Globe3D;

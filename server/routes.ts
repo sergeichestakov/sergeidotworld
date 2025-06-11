@@ -244,8 +244,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Admin authentication endpoint
   app.post("/api/admin/auth", (req, res) => {
-    const adminPassword = process.env.ADMIN_DASHBOARD_PASSWORD || 'admin123';
+    const adminPassword = process.env.ADMIN_DASHBOARD_PASSWORD;
     const providedPassword = req.body.password;
+
+    if (!adminPassword) {
+      return res.status(500).json({ message: "Admin password not set" });
+    }
     
     if (providedPassword === adminPassword) {
       res.json({ success: true });

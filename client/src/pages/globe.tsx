@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Globe, Settings, Plus, Minus, Home, Crosshair, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import Globe3D from "@/components/Globe";
+import Globe3D, { type GlobeRef } from "@/components/Globe";
 import LocationModal from "@/components/LocationModal";
 import type { Location, Setting } from "@shared/schema";
 import type { LocationStats } from "@/lib/types";
