@@ -117,12 +117,12 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
           .arcStartLng((d: any) => d.from.longitude)
           .arcEndLat((d: any) => d.to.latitude)
           .arcEndLng((d: any) => d.to.longitude)
-          .arcColor(() => '#ff6b35')
-          .arcAltitude(0.3)
-          .arcStroke(2)
-          .arcDashLength(0.4)
-          .arcDashGap(0.2)
-          .arcDashAnimateTime(3000)
+          .arcColor(() => '#ffb29a')
+          .arcAltitude(0.1)
+          .arcStroke(0.8)
+          .arcDashLength(1)
+          .arcDashGap(0)
+          .arcDashAnimateTime(0)
           .arcLabel((d: any) => `
             <div style="
               background: rgba(0, 0, 0, 0.8); 
