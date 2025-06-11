@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertLocationSchema } from "@shared/schema";
+import { insertLocationSchema, insertSettingSchema } from "@shared/schema";
 import { parseFlightCSV, getUniqueDestinations } from "./flight-parser";
 import { z } from "zod";
 import fs from "fs";
@@ -192,6 +192,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Flight routes error:", error);
       res.status(500).json({ message: "Failed to get flight routes" });
+    }
+  });
+
+  // Settings API routes
+  app.get("/api/settings", async (req, res) => {
+    try {
+      const settings = await storage.getSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch settings" });
+    }
+  });
+
+  app.get("/api/settings/:key", async (req, res) => {
+    try {
+      const setting = await storage.getSetting(req.params.key);
+      if (!setting) {
+        res.status(404).json({ message: "Setting not found" });
+        return;
+      }
+      res.json(setting);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch setting" });
+    }
+  });
+
+  app.put("/api/settings/:key", async (req, res) => {
+    try {
+      // Simple password check for admin operations
+      const adminPassword = process.env.ADMIN_DASHBOARD_PASSWORD || 'admin123';
+      const providedPassword = req.body.password;
+      
+      if (providedPassword !== adminPassword) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      const { value } = req.body;
+      if (!value) {
+        res.status(400).json({ message: "Value is required" });
+        return;
+      }
+
+      const setting = await storage.setSetting(req.params.key, value);
+      res.json(setting);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update setting" });
+    }
+  });
+
+  // Admin authentication endpoint
+  app.post("/api/admin/auth", (req, res) => {
+    const adminPassword = process.env.ADMIN_DASHBOARD_PASSWORD || 'admin123';
+    const providedPassword = req.body.password;
+    
+    if (providedPassword === adminPassword) {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ success: false, message: "Invalid password" });
     }
   });
 

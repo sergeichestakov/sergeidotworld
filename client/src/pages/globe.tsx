@@ -5,13 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Globe3D from "@/components/Globe";
-import AdminDashboard from "@/components/AdminDashboard";
 import LocationModal from "@/components/LocationModal";
-import type { Location } from "@shared/schema";
+import type { Location, Setting } from "@shared/schema";
 import type { LocationStats } from "@/lib/types";
 
 export default function GlobePage() {
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [showFlights, setShowFlights] = useState(false);
 
@@ -23,12 +21,17 @@ export default function GlobePage() {
     queryKey: ["/api/locations/current"],
   });
 
+  const { data: settings = [] } = useQuery<Setting[]>({
+    queryKey: ["/api/settings"],
+  });
+
   const visitedLocations = locations.filter(loc => loc.type === 'visited');
   const homeLocation = locations.find(loc => loc.type === 'home');
 
+  const countriesVisitedSetting = settings.find(s => s.key === 'countries_visited');
   const stats: LocationStats = {
     totalVisits: visitedLocations.length,
-    countries: new Set(visitedLocations.map(loc => loc.name.split(',').pop()?.trim())).size,
+    countries: parseInt(countriesVisitedSetting?.value || "37"),
     lastUpdate: currentLocation ? 
       new Date(currentLocation.updatedAt).toLocaleString('en-US', {
         hour: 'numeric',
@@ -62,7 +65,7 @@ export default function GlobePage() {
           </div>
           
           <Button
-            onClick={() => setIsAdminOpen(true)}
+            onClick={() => window.location.href = '/admin'}
             variant="outline"
             className="bg-space-light hover:bg-gray-700 transition-colors border-gray-600 text-white"
           >
