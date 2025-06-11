@@ -192,16 +192,24 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
   useImperativeHandle(ref, () => ({
     zoomIn: () => {
       if (globeRef.current) {
-        const controls = globeRef.current.controls();
-        const currentDistance = controls.getDistance();
-        controls.setDistance(Math.max(currentDistance * 0.8, controls.minDistance));
+        const currentPov = globeRef.current.pointOfView();
+        const newAltitude = Math.max(currentPov.altitude * 0.8, 0.5);
+        globeRef.current.pointOfView({ 
+          lat: currentPov.lat, 
+          lng: currentPov.lng, 
+          altitude: newAltitude 
+        }, 300);
       }
     },
     zoomOut: () => {
       if (globeRef.current) {
-        const controls = globeRef.current.controls();
-        const currentDistance = controls.getDistance();
-        controls.setDistance(Math.min(currentDistance * 1.25, controls.maxDistance));
+        const currentPov = globeRef.current.pointOfView();
+        const newAltitude = Math.min(currentPov.altitude * 1.25, 4);
+        globeRef.current.pointOfView({ 
+          lat: currentPov.lat, 
+          lng: currentPov.lng, 
+          altitude: newAltitude 
+        }, 300);
       }
     },
     focusOnLocation: (lat: number, lng: number, altitude: number = 2) => {
