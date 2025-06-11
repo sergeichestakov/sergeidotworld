@@ -69,6 +69,48 @@ export const airportData: Record<string, Airport> = {
   // Asia
   'ICN': { code: 'ICN', name: 'Incheon International Airport', city: 'Seoul', country: 'South Korea', latitude: 37.4602, longitude: 126.4407 },
   'DXB': { code: 'DXB', name: 'Dubai International Airport', city: 'Dubai', country: 'UAE', latitude: 25.2532, longitude: 55.3657 },
+  'DOH': { code: 'DOH', name: 'Hamad International Airport', city: 'Doha', country: 'Qatar', latitude: 25.2732, longitude: 51.6080 },
+  'HKG': { code: 'HKG', name: 'Hong Kong International Airport', city: 'Hong Kong', country: 'China', latitude: 22.3080, longitude: 113.9185 },
+  'SIN': { code: 'SIN', name: 'Singapore Changi Airport', city: 'Singapore', country: 'Singapore', latitude: 1.3644, longitude: 103.9915 },
+  'NRT': { code: 'NRT', name: 'Narita International Airport', city: 'Tokyo', country: 'Japan', latitude: 35.7720, longitude: 140.3929 },
+  'HND': { code: 'HND', name: 'Haneda Airport', city: 'Tokyo', country: 'Japan', latitude: 35.5494, longitude: 139.7798 },
+  'BKK': { code: 'BKK', name: 'Suvarnabhumi Airport', city: 'Bangkok', country: 'Thailand', latitude: 13.6900, longitude: 100.7501 },
+  'TPE': { code: 'TPE', name: 'Taiwan Taoyuan International Airport', city: 'Taipei', country: 'Taiwan', latitude: 25.0777, longitude: 121.2328 },
+  
+  // China
+  'PEK': { code: 'PEK', name: 'Beijing Capital International Airport', city: 'Beijing', country: 'China', latitude: 40.0799, longitude: 116.6031 },
+  'PKX': { code: 'PKX', name: 'Beijing Daxing International Airport', city: 'Beijing', country: 'China', latitude: 39.5098, longitude: 116.4074 },
+  'PVG': { code: 'PVG', name: 'Shanghai Pudong International Airport', city: 'Shanghai', country: 'China', latitude: 31.1443, longitude: 121.8083 },
+  'CAN': { code: 'CAN', name: 'Guangzhou Baiyun International Airport', city: 'Guangzhou', country: 'China', latitude: 23.3924, longitude: 113.2988 },
+  'CTU': { code: 'CTU', name: 'Chengdu Tianfu International Airport', city: 'Chengdu', country: 'China', latitude: 30.3085, longitude: 104.4419 },
+  'XIY': { code: 'XIY', name: 'Xi\'an Xianyang International Airport', city: 'Xi\'an', country: 'China', latitude: 34.4471, longitude: 108.7519 },
+  'TSN': { code: 'TSN', name: 'Tianjin Binhai International Airport', city: 'Tianjin', country: 'China', latitude: 39.1244, longitude: 117.3464 },
+  'NKG': { code: 'NKG', name: 'Nanjing Lukou International Airport', city: 'Nanjing', country: 'China', latitude: 31.7420, longitude: 118.8622 },
+  'HGH': { code: 'HGH', name: 'Hangzhou Xiaoshan International Airport', city: 'Hangzhou', country: 'China', latitude: 30.2295, longitude: 120.4347 },
+  'CGO': { code: 'CGO', name: 'Zhengzhou Xinzheng International Airport', city: 'Zhengzhou', country: 'China', latitude: 34.5197, longitude: 113.8407 },
+  'WUH': { code: 'WUH', name: 'Wuhan Tianhe International Airport', city: 'Wuhan', country: 'China', latitude: 30.7838, longitude: 114.2081 },
+  
+  // India
+  'DEL': { code: 'DEL', name: 'Indira Gandhi International Airport', city: 'New Delhi', country: 'India', latitude: 28.5562, longitude: 77.1000 },
+  'BOM': { code: 'BOM', name: 'Chhatrapati Shivaji Maharaj International Airport', city: 'Mumbai', country: 'India', latitude: 19.0896, longitude: 72.8656 },
+  'BLR': { code: 'BLR', name: 'Kempegowda International Airport', city: 'Bangalore', country: 'India', latitude: 13.1979, longitude: 77.7063 },
+  'MAA': { code: 'MAA', name: 'Chennai International Airport', city: 'Chennai', country: 'India', latitude: 12.9941, longitude: 80.1709 },
+  'CCU': { code: 'CCU', name: 'Netaji Subhas Chandra Bose International Airport', city: 'Kolkata', country: 'India', latitude: 22.6546, longitude: 88.4467 },
+  'HYD': { code: 'HYD', name: 'Rajiv Gandhi International Airport', city: 'Hyderabad', country: 'India', latitude: 17.2403, longitude: 78.4294 },
+  'PNQ': { code: 'PNQ', name: 'Pune Airport', city: 'Pune', country: 'India', latitude: 18.5820, longitude: 73.9197 },
+  'GOX': { code: 'GOX', name: 'Manohar International Airport', city: 'Goa', country: 'India', latitude: 15.3805, longitude: 74.1112 },
+  'DED': { code: 'DED', name: 'Jolly Grant Airport', city: 'Dehradun', country: 'India', latitude: 30.1897, longitude: 78.1803 },
+  
+  // Africa
+  'CAI': { code: 'CAI', name: 'Cairo International Airport', city: 'Cairo', country: 'Egypt', latitude: 30.1219, longitude: 31.4056 },
+  'NBO': { code: 'NBO', name: 'Jomo Kenyatta International Airport', city: 'Nairobi', country: 'Kenya', latitude: -1.3192, longitude: 36.9278 },
+  'ADD': { code: 'ADD', name: 'Addis Ababa Bole International Airport', city: 'Addis Ababa', country: 'Ethiopia', latitude: 8.9806, longitude: 38.7992 },
+  'CPT': { code: 'CPT', name: 'Cape Town International Airport', city: 'Cape Town', country: 'South Africa', latitude: -33.9648, longitude: 18.6017 },
+  'JNB': { code: 'JNB', name: 'O.R. Tambo International Airport', city: 'Johannesburg', country: 'South Africa', latitude: -26.1392, longitude: 28.2460 },
+  'DUR': { code: 'DUR', name: 'King Shaka International Airport', city: 'Durban', country: 'South Africa', latitude: -29.6144, longitude: 31.1197 },
+  'LOS': { code: 'LOS', name: 'Murtala Muhammed International Airport', city: 'Lagos', country: 'Nigeria', latitude: 6.5774, longitude: 3.3212 },
+  'ACC': { code: 'ACC', name: 'Kotoka International Airport', city: 'Accra', country: 'Ghana', latitude: 5.6052, longitude: -0.1719 },
+  'ABV': { code: 'ABV', name: 'Nnamdi Azikiwe International Airport', city: 'Abuja', country: 'Nigeria', latitude: 9.0068, longitude: 7.2632 },
 
   // South America
   'GIG': { code: 'GIG', name: 'Rio de Janeiro-Galeão International Airport', city: 'Rio de Janeiro', country: 'Brazil', latitude: -22.8099, longitude: -43.2505 },
