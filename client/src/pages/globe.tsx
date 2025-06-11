@@ -38,7 +38,7 @@ export default function GlobePage() {
         hour: 'numeric',
         minute: '2-digit', 
         hour12: true
-      }) + ' ago' : 'Never'
+      }) : 'Never'
   };
 
   const handleLocationClick = (location: Location) => {
