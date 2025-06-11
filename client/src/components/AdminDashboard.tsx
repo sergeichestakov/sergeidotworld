@@ -133,6 +133,54 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
     },
   });
 
+  // Import flight destinations mutation
+  const importFlightDataMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/flights/routes');
+      const routes = await response.json();
+      
+      // Get unique destinations from flight data
+      const destinations = new Map();
+      routes.forEach((route: any) => {
+        if (route.to.latitude && route.to.longitude) {
+          const key = `${route.to.code}`;
+          if (!destinations.has(key)) {
+            destinations.set(key, {
+              name: route.to.name || route.to.code,
+              latitude: route.to.latitude,
+              longitude: route.to.longitude,
+              type: "visited",
+              visitDate: null,
+              notes: `Flight destination: ${route.to.code}`
+            });
+          }
+        }
+      });
+
+      // Create locations for each destination
+      const promises = Array.from(destinations.values()).map(async dest => {
+        const response = await apiRequest("POST", "/api/locations", dest);
+        return response.json();
+      });
+      
+      return Promise.all(promises);
+    },
+    onSuccess: (results) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
+      toast({
+        title: "Flight Data Imported",
+        description: `Successfully imported ${results.length} flight destinations.`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Import Failed",
+        description: "Failed to import flight destinations.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onUpdateCurrentLocation = (data: z.infer<typeof currentLocationSchema>) => {
     updateCurrentLocationMutation.mutate(data);
   };
@@ -261,6 +309,27 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                   </div>
                 </form>
               </Form>
+            </div>
+
+            {/* Flight Data Import */}
+            <div className="space-light rounded-xl p-4 border border-gray-700">
+              <h3 className="font-semibold mb-4 flex items-center text-white">
+                <Plane className="text-orange-500 mr-2" size={20} />
+                Flight Data
+              </h3>
+              <div className="flex items-center space-x-4">
+                <Button
+                  onClick={() => importFlightDataMutation.mutate()}
+                  className="bg-orange-500 hover:bg-orange-600"
+                  disabled={importFlightDataMutation.isPending}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {importFlightDataMutation.isPending ? "Importing..." : "Import Flight Destinations"}
+                </Button>
+                <p className="text-sm text-gray-400">
+                  Import all flight destinations from your travel history as visited locations
+                </p>
+              </div>
             </div>
 
             {/* Visited Locations */}
