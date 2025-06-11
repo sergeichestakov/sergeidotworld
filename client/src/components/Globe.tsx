@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import * as THREE from 'three';
+import Globe from 'globe.gl';
 import { Location } from '@shared/schema';
 
 interface GlobeProps {
@@ -9,234 +9,138 @@ interface GlobeProps {
 
 export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<THREE.Scene>();
-  const rendererRef = useRef<THREE.WebGLRenderer>();
-  const cameraRef = useRef<THREE.PerspectiveCamera>();
-  const earthRef = useRef<THREE.Mesh>();
-  const markersRef = useRef<{ location: Location; mesh: THREE.Mesh }[]>([]);
-  const frameRef = useRef<number>();
+  const globeRef = useRef<any>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Scene setup
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      75, 
-      window.innerWidth / window.innerHeight, 
-      0.1, 
-      1000
-    );
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0);
-    mountRef.current.appendChild(renderer.domElement);
+    // Initialize Globe.gl
+    const globe = new Globe(mountRef.current)
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+      .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+      .width(window.innerWidth)
+      .height(window.innerHeight)
+      .backgroundColor('rgba(0,0,0,0)')
+      .showAtmosphere(true)
+      .atmosphereColor('#87ceeb')
+      .atmosphereAltitude(0.1)
+      .enablePointerInteraction(true)
+      .pointOfView({ lat: 0, lng: 0, altitude: 2.5 });
 
-    // Earth sphere
-    const earthGeometry = new THREE.SphereGeometry(5, 64, 64);
-    const earthMaterial = new THREE.MeshPhongMaterial({
-      map: createEarthTexture(),
-      bumpScale: 0.05,
-    });
-    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
-    scene.add(earth);
-
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-    scene.add(ambientLight);
-    
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(10, 10, 5);
-    scene.add(directionalLight);
-
-    // Position camera
-    camera.position.set(0, 0, 15);
-
-    // Store refs
-    sceneRef.current = scene;
-    rendererRef.current = renderer;
-    cameraRef.current = camera;
-    earthRef.current = earth;
-
-    // Mouse controls
-    let isDragging = false;
-    let previousMousePosition = { x: 0, y: 0 };
-
-    const handleMouseDown = (event: MouseEvent) => {
-      isDragging = true;
-      previousMousePosition = { x: event.clientX, y: event.clientY };
-    };
-
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!isDragging || !earthRef.current) return;
-
-      const deltaMove = {
-        x: event.clientX - previousMousePosition.x,
-        y: event.clientY - previousMousePosition.y
-      };
-
-      earthRef.current.rotation.y += deltaMove.x * 0.01;
-      earthRef.current.rotation.x += deltaMove.y * 0.01;
-
-      // Update marker rotations
-      markersRef.current.forEach(({ mesh }) => {
-        mesh.rotation.y = earthRef.current!.rotation.y;
-        mesh.rotation.x = earthRef.current!.rotation.x;
-      });
-
-      previousMousePosition = { x: event.clientX, y: event.clientY };
-    };
-
-    const handleMouseUp = () => {
-      isDragging = false;
-    };
-
-    const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      const zoomFactor = event.deltaY > 0 ? 1.1 : 0.9;
-      camera.position.multiplyScalar(zoomFactor);
-      camera.position.clampLength(8, 30);
-    };
-
-    renderer.domElement.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    renderer.domElement.addEventListener('wheel', handleWheel);
-
-    // Animation loop
-    const animate = () => {
-      frameRef.current = requestAnimationFrame(animate);
-      
-      if (!isDragging && earthRef.current) {
-        earthRef.current.rotation.y += 0.002;
-        markersRef.current.forEach(({ mesh }) => {
-          mesh.rotation.y = earthRef.current!.rotation.y;
-        });
-      }
-      
-      renderer.render(scene, camera);
-    };
-    animate();
+    globeRef.current = globe;
 
     // Handle window resize
     const handleResize = () => {
-      if (!camera || !renderer) return;
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      if (globeRef.current) {
+        globeRef.current
+          .width(window.innerWidth)
+          .height(window.innerHeight);
+      }
     };
     window.addEventListener('resize', handleResize);
 
     return () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-      }
-      renderer.domElement.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      renderer.domElement.removeEventListener('wheel', handleWheel);
       window.removeEventListener('resize', handleResize);
-      
-      if (mountRef.current && renderer.domElement) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (mountRef.current && mountRef.current.firstChild) {
+        mountRef.current.removeChild(mountRef.current.firstChild);
       }
-      renderer.dispose();
     };
   }, []);
 
   // Update markers when locations change
   useEffect(() => {
-    if (!sceneRef.current) return;
+    if (!globeRef.current) return;
 
-    // Clear existing markers
-    markersRef.current.forEach(({ mesh }) => {
-      sceneRef.current!.remove(mesh);
-    });
-    markersRef.current = [];
+    // Prepare points data for Globe.gl
+    const pointsData = locations.map(location => ({
+      lat: location.latitude,
+      lng: location.longitude,
+      size: getMarkerSize(location.type),
+      color: getMarkerColor(location.type),
+      label: location.name,
+      location: location
+    }));
 
-    // Add new markers
-    locations.forEach(location => {
-      const marker = createLocationMarker(location);
-      if (marker) {
-        sceneRef.current!.add(marker);
-        markersRef.current.push({ location, mesh: marker });
-      }
-    });
-  }, [locations]);
+    // Add points to globe
+    globeRef.current
+      .pointsData(pointsData)
+      .pointAltitude(0.01)
+      .pointRadius('size')
+      .pointColor('color')
+      .pointLabel((d: any) => `
+        <div style="
+          background: rgba(0, 0, 0, 0.8); 
+          color: white; 
+          padding: 8px 12px; 
+          border-radius: 6px; 
+          font-size: 14px;
+          max-width: 200px;
+        ">
+          <strong>${d.label}</strong><br/>
+          <span style="color: ${d.color};">${getLocationTypeLabel(d.location.type)}</span><br/>
+          <small>${d.lat.toFixed(4)}°, ${d.lng.toFixed(4)}°</small>
+        </div>
+      `)
+      .onPointClick((point: any) => {
+        onLocationClick(point.location);
+      })
+      .onPointHover((point: any) => {
+        if (point) {
+          document.body.style.cursor = 'pointer';
+        } else {
+          document.body.style.cursor = 'auto';
+        }
+      });
 
-  const createEarthTexture = (): THREE.Texture => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1024;
-    canvas.height = 512;
-    const context = canvas.getContext('2d')!;
-
-    // Create a simple blue and green earth texture
-    const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#1e40af'); // Blue
-    gradient.addColorStop(0.3, '#059669'); // Green
-    gradient.addColorStop(0.7, '#059669'); // Green
-    gradient.addColorStop(1, '#1e40af'); // Blue
-
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Add some landmass-like patterns
-    context.fillStyle = '#065f46';
-    for (let i = 0; i < 20; i++) {
-      const x = Math.random() * canvas.width;
-      const y = Math.random() * canvas.height;
-      const width = Math.random() * 100 + 50;
-      const height = Math.random() * 50 + 25;
-      context.fillRect(x, y, width, height);
+    // Focus on current location initially
+    const currentLocationPoint = pointsData.find(p => p.location.type === 'current');
+    if (currentLocationPoint) {
+      globeRef.current.pointOfView({
+        lat: currentLocationPoint.lat,
+        lng: currentLocationPoint.lng,
+        altitude: 2
+      }, 1000);
     }
+  }, [locations, onLocationClick]);
 
-    const texture = new THREE.CanvasTexture(canvas);
-    return texture;
+  const getMarkerSize = (type: string): number => {
+    switch (type) {
+      case 'current':
+        return 0.6;
+      case 'home':
+        return 0.5;
+      case 'visited':
+        return 0.3;
+      default:
+        return 0.3;
+    }
   };
 
-  const createLocationMarker = (location: Location): THREE.Mesh | null => {
-    const phi = (90 - location.latitude) * (Math.PI / 180);
-    const theta = (location.longitude + 180) * (Math.PI / 180);
-
-    const x = -5.1 * Math.sin(phi) * Math.cos(theta);
-    const y = 5.1 * Math.cos(phi);
-    const z = 5.1 * Math.sin(phi) * Math.sin(theta);
-
-    let color: number;
-    let size: number;
-    
-    switch (location.type) {
+  const getMarkerColor = (type: string): string => {
+    switch (type) {
       case 'current':
-        color = 0xef4444; // Red
-        size = 0.15;
-        break;
+        return '#ef4444'; // Red
       case 'home':
-        color = 0xf59e0b; // Amber
-        size = 0.12;
-        break;
+        return '#f59e0b'; // Amber
       case 'visited':
-        color = 0x06b6d4; // Cyan
-        size = 0.08;
-        break;
+        return '#06b6d4'; // Cyan
       default:
-        return null;
+        return '#6b7280'; // Gray
     }
+  };
 
-    const geometry = new THREE.SphereGeometry(size, 8, 8);
-    const material = new THREE.MeshBasicMaterial({ 
-      color,
-      transparent: location.type === 'current',
-      opacity: location.type === 'current' ? 0.8 : 1,
-    });
-    
-    const marker = new THREE.Mesh(geometry, material);
-    marker.position.set(x, y, z);
-    
-    // Add click handler
-    marker.userData = { location, onClick: () => onLocationClick(location) };
-
-    return marker;
+  const getLocationTypeLabel = (type: string): string => {
+    switch (type) {
+      case 'current':
+        return 'Current Location';
+      case 'home':
+        return 'Home Base';
+      case 'visited':
+        return 'Visited Location';
+      default:
+        return 'Location';
+    }
   };
 
   return <div ref={mountRef} className="absolute inset-0" />;
