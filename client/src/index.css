@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Space theme colors */
+  --space-dark: hsl(0, 0%, 4%);
+  --space-medium: hsl(0, 0%, 7%);
+  --space-light: hsl(0, 0%, 10%);
+  --earth-blue: hsl(213, 79%, 48%);
+  --earth-green: hsl(158, 91%, 40%);
+  --location-current: hsl(0, 84%, 60%);
+  --location-home: hsl(38, 92%, 50%);
+  --location-visited: hsl(188, 95%, 43%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased;
+    background: var(--space-dark);
+    color: white;
+    overflow: hidden;
+  }
+}
+
+@layer utilities {
+  .space-dark {
+    background-color: var(--space-dark);
+  }
+  
+  .space-medium {
+    background-color: var(--space-medium);
+  }
+  
+  .space-light {
+    background-color: var(--space-light);
+  }
+  
+  .earth-blue {
+    color: var(--earth-blue);
+  }
+  
+  .earth-green {
+    color: var(--earth-green);
+  }
+  
+  .location-current {
+    color: var(--location-current);
+  }
+  
+  .location-home {
+    color: var(--location-home);
+  }
+  
+  .location-visited {
+    color: var(--location-visited);
+  }
+
+  .bg-location-current {
+    background-color: var(--location-current);
+  }
+  
+  .bg-location-home {
+    background-color: var(--location-home);
+  }
+  
+  .bg-location-visited {
+    background-color: var(--location-visited);
+  }
+
+  .globe-container {
+    background: radial-gradient(ellipse at center, var(--space-light) 0%, var(--space-dark) 100%);
+  }
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-10px); 
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.control-btn {
+  @apply w-10 h-10 transition-colors rounded-lg border flex items-center justify-center text-sm;
+  background-color: var(--space-dark);
+  border-color: rgb(75, 85, 99);
+}
+
+.control-btn:hover {
+  background-color: rgb(75, 85, 99);
+  color: white;
+}
