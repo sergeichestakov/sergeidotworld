@@ -60,7 +60,7 @@ export default function GlobePage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-amber-500 rounded-full flex items-center justify-center">
-              <Globe className="text-white text-lg" size={20} />
+              <span className="text-xl">🌍</span>
             </div>
             <h1 className="text-2xl font-bold">sergei.world</h1>
           </div>
