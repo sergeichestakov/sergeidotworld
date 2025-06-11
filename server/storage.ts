@@ -1,4 +1,4 @@
-import { locations, type Location, type InsertLocation } from "@shared/schema";
+import { locations, settings, type Location, type InsertLocation, type Setting, type InsertSetting } from "@shared/schema";
 
 export interface IStorage {
   getLocations(): Promise<Location[]>;
@@ -10,18 +10,26 @@ export interface IStorage {
   updateLocation(id: number, location: Partial<InsertLocation>): Promise<Location | undefined>;
   deleteLocation(id: number): Promise<boolean>;
   updateCurrentLocation(location: Omit<InsertLocation, 'type'>): Promise<Location>;
+  getSetting(key: string): Promise<Setting | undefined>;
+  setSetting(key: string, value: string): Promise<Setting>;
+  getSettings(): Promise<Setting[]>;
 }
 
 export class MemStorage implements IStorage {
   private locations: Map<number, Location>;
+  private settings: Map<string, Setting>;
   private currentId: number;
+  private settingsId: number;
 
   constructor() {
     this.locations = new Map();
+    this.settings = new Map();
     this.currentId = 1;
+    this.settingsId = 1;
     
     // Initialize with some default data
     this.initializeDefaultData();
+    this.initializeSettings();
   }
 
   private initializeDefaultData() {
@@ -172,6 +180,47 @@ export class MemStorage implements IStorage {
         type: 'current',
       });
     }
+  }
+
+  private initializeSettings() {
+    // Initialize default settings
+    const countriesVisited: Setting = {
+      id: this.settingsId++,
+      key: 'countries_visited',
+      value: '37',
+      updatedAt: new Date(),
+    };
+    this.settings.set('countries_visited', countriesVisited);
+  }
+
+  async getSetting(key: string): Promise<Setting | undefined> {
+    return this.settings.get(key);
+  }
+
+  async setSetting(key: string, value: string): Promise<Setting> {
+    const existingSetting = this.settings.get(key);
+    if (existingSetting) {
+      const updated: Setting = {
+        ...existingSetting,
+        value,
+        updatedAt: new Date(),
+      };
+      this.settings.set(key, updated);
+      return updated;
+    } else {
+      const newSetting: Setting = {
+        id: this.settingsId++,
+        key,
+        value,
+        updatedAt: new Date(),
+      };
+      this.settings.set(key, newSetting);
+      return newSetting;
+    }
+  }
+
+  async getSettings(): Promise<Setting[]> {
+    return Array.from(this.settings.values());
   }
 }
 
