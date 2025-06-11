@@ -95,8 +95,20 @@ export default function GlobePage() {
                 <Home size={16} />
               </button>
               <button className="control-btn" title="Follow Current Location">
-                <Crosshair size={16} className="text-red-500" />
+                <Crosshair size={16} className="text-green-500" />
               </button>
+              <div className="border-t border-gray-600 my-2"></div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="flight-toggle"
+                  checked={showFlights}
+                  onCheckedChange={setShowFlights}
+                  className="data-[state=checked]:bg-orange-500"
+                />
+                <Label htmlFor="flight-toggle" className="text-xs text-gray-300 cursor-pointer">
+                  <Plane size={14} />
+                </Label>
+              </div>
             </div>
           </div>
         </div>
@@ -107,15 +119,15 @@ export default function GlobePage() {
             <h3 className="font-semibold text-lg mb-3">Location Types</h3>
             <div className="space-y-2">
               <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 bg-location-current rounded-full animate-pulse-slow"></div>
-                <span className="text-sm">Current Location</span>
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse-slow"></div>
+                <span className="text-sm">Currently In</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 bg-location-home rounded-full"></div>
+                <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
                 <span className="text-sm">Home Base</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 bg-location-visited rounded-full"></div>
+                <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
                 <span className="text-sm">Places Visited</span>
               </div>
             </div>
