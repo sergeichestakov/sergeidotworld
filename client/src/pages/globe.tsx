@@ -12,6 +12,7 @@ import type { LocationStats } from "@/lib/types";
 export default function GlobePage() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [showFlights, setShowFlights] = useState(false);
+  const globeRef = useRef<GlobeRef>(null);
 
   const { data: locations = [], isLoading } = useQuery<Location[]>({
     queryKey: ["/api/locations"],
@@ -78,6 +79,7 @@ export default function GlobePage() {
       {/* Main Globe Container */}
       <main className="relative w-full h-screen globe-container">
         <Globe3D 
+          ref={globeRef}
           locations={locations} 
           onLocationClick={handleLocationClick}
           showFlights={showFlights}
@@ -87,17 +89,41 @@ export default function GlobePage() {
         <div className="absolute bottom-6 right-6 z-20">
           <div className="bg-space-light/80 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
             <div className="flex flex-col space-y-3">
-              <button className="control-btn" title="Zoom In">
+              <button 
+                className="control-btn" 
+                title="Zoom In"
+                onClick={() => globeRef.current?.zoomIn()}
+              >
                 <Plus size={16} />
               </button>
-              <button className="control-btn" title="Zoom Out">
+              <button 
+                className="control-btn" 
+                title="Zoom Out"
+                onClick={() => globeRef.current?.zoomOut()}
+              >
                 <Minus size={16} />
               </button>
               <div className="border-t border-gray-600 my-2"></div>
-              <button className="control-btn" title="Reset View">
+              <button 
+                className="control-btn" 
+                title="Focus on Home Base"
+                onClick={() => {
+                  if (homeLocation) {
+                    globeRef.current?.focusOnLocation(homeLocation.latitude, homeLocation.longitude);
+                  }
+                }}
+              >
                 <Home size={16} />
               </button>
-              <button className="control-btn" title="Follow Current Location">
+              <button 
+                className="control-btn" 
+                title="Focus on Current Location"
+                onClick={() => {
+                  if (currentLocation) {
+                    globeRef.current?.focusOnLocation(currentLocation.latitude, currentLocation.longitude);
+                  }
+                }}
+              >
                 <Crosshair size={16} className="text-green-500" />
               </button>
               <div className="border-t border-gray-600 my-2"></div>
