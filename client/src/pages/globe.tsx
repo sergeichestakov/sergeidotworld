@@ -176,12 +176,6 @@ export default function GlobePage() {
         )}
       </main>
 
-      {/* Admin Dashboard */}
-      <AdminDashboard 
-        isOpen={isAdminOpen} 
-        onClose={() => setIsAdminOpen(false)}
-      />
-
       {/* Location Modal */}
       {selectedLocation && (
         <LocationModal 
