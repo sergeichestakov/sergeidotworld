@@ -38,18 +38,71 @@ export class MemStorage implements IStorage {
     };
     this.locations.set(home.id, home);
 
-    // Current location (initially same as home)
+    // Current location
     const current: Location = {
       id: this.currentId++,
-      name: "San Francisco, CA",
-      latitude: 37.7749,
-      longitude: -122.4194,
+      name: "Tokyo, Japan",
+      latitude: 35.6762,
+      longitude: 139.6503,
       type: "current",
       visitDate: null,
-      notes: "Current location",
+      notes: "Currently traveling",
       updatedAt: new Date(),
     };
     this.locations.set(current.id, current);
+
+    // Visited locations
+    const visitedLocations = [
+      {
+        name: "Paris, France",
+        latitude: 48.8566,
+        longitude: 2.3522,
+        visitDate: "2024-03",
+        notes: "Amazing architecture and food"
+      },
+      {
+        name: "New York, NY",
+        latitude: 40.7128,
+        longitude: -74.0060,
+        visitDate: "2024-01",
+        notes: "Business trip"
+      },
+      {
+        name: "London, UK",
+        latitude: 51.5074,
+        longitude: -0.1278,
+        visitDate: "2023-11",
+        notes: "Great museums"
+      },
+      {
+        name: "Sydney, Australia",
+        latitude: -33.8688,
+        longitude: 151.2093,
+        visitDate: "2023-09",
+        notes: "Beautiful harbor views"
+      },
+      {
+        name: "Dubai, UAE",
+        latitude: 25.2048,
+        longitude: 55.2708,
+        visitDate: "2023-07",
+        notes: "Incredible skyline"
+      }
+    ];
+
+    visitedLocations.forEach(location => {
+      const visitedLocation: Location = {
+        id: this.currentId++,
+        name: location.name,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        type: "visited",
+        visitDate: location.visitDate,
+        notes: location.notes,
+        updatedAt: new Date(),
+      };
+      this.locations.set(visitedLocation.id, visitedLocation);
+    });
   }
 
   async getLocations(): Promise<Location[]> {

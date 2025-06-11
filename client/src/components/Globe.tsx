@@ -28,6 +28,14 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
       .enablePointerInteraction(true)
       .pointOfView({ lat: 0, lng: 0, altitude: 2.5 });
 
+    // Configure controls for auto-rotation
+    const controls = globe.controls();
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.5;
+    controls.enableZoom = true;
+    controls.minDistance = 200;
+    controls.maxDistance = 800;
+
     globeRef.current = globe;
 
     // Handle window resize
