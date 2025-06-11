@@ -28,12 +28,12 @@ export class MemStorage implements IStorage {
     // Home location
     const home: Location = {
       id: this.currentId++,
-      name: "San Francisco, CA",
-      latitude: 37.7749,
-      longitude: -122.4194,
+      name: "Brooklyn, NY",
+      latitude: 40.7033,
+      longitude: -73.9625,
       type: "home",
       visitDate: null,
-      notes: "Home base",
+      notes: "Home base near Domino Park",
       updatedAt: new Date(),
     };
     this.locations.set(home.id, home);
@@ -41,12 +41,12 @@ export class MemStorage implements IStorage {
     // Current location
     const current: Location = {
       id: this.currentId++,
-      name: "Tokyo, Japan",
-      latitude: 35.6762,
-      longitude: 139.6503,
+      name: "Brooklyn, NY",
+      latitude: 40.7033,
+      longitude: -73.9625,
       type: "current",
       visitDate: null,
-      notes: "Currently traveling",
+      notes: "Currently in Brooklyn near Domino Park",
       updatedAt: new Date(),
     };
     this.locations.set(current.id, current);

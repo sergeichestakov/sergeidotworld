@@ -56,6 +56,23 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
     };
   }, []);
 
+  // Animation loop for pulsing effect
+  useEffect(() => {
+    if (!globeRef.current) return;
+
+    const animate = () => {
+      if (globeRef.current) {
+        // Force re-render to update pulsing points
+        globeRef.current.pointsData(globeRef.current.pointsData());
+      }
+      requestAnimationFrame(animate);
+    };
+    
+    const animationId = requestAnimationFrame(animate);
+    
+    return () => cancelAnimationFrame(animationId);
+  }, []);
+
   // Update markers and flight routes when locations change
   useEffect(() => {
     if (!globeRef.current) return;
@@ -67,14 +84,23 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
       size: getMarkerSize(location.type),
       color: getMarkerColor(location.type),
       label: location.name,
-      location: location
+      location: location,
+      isPulsing: location.type === 'current'
     }));
 
     // Add points to globe
     globeRef.current
       .pointsData(pointsData)
       .pointAltitude(0.01)
-      .pointRadius('size')
+      .pointRadius((d: any) => {
+        if (d.isPulsing) {
+          // Create pulsing effect for current location
+          const time = Date.now() * 0.002;
+          const pulse = Math.sin(time) * 0.1 + 1;
+          return d.size * pulse;
+        }
+        return d.size;
+      })
       .pointColor('color')
       .pointLabel((d: any) => `
         <div style="
@@ -169,7 +195,7 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
   const getMarkerColor = (type: string): string => {
     switch (type) {
       case 'current':
-        return '#ef4444'; // Red
+        return '#10b981'; // Green
       case 'home':
         return '#f59e0b'; // Amber
       case 'visited':
