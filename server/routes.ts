@@ -2,7 +2,10 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertLocationSchema } from "@shared/schema";
+import { parseFlightCSV, getUniqueDestinations } from "./flight-parser";
 import { z } from "zod";
+import fs from "fs";
+import path from "path";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all locations
@@ -114,6 +117,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete location" });
+    }
+  });
+
+  // Upload and parse flight data
+  app.post("/api/flights/upload", async (req, res) => {
+    try {
+      const csvContent = req.body.csvContent;
+      if (!csvContent) {
+        return res.status(400).json({ message: "CSV content is required" });
+      }
+
+      const flights = parseFlightCSV(csvContent);
+      const destinations = getUniqueDestinations(flights);
+      
+      // Add destinations as visited locations
+      for (const dest of destinations) {
+        await storage.createLocation({
+          name: `${dest.city}, ${dest.country}`,
+          latitude: dest.latitude,
+          longitude: dest.longitude,
+          type: "visited",
+          visitDate: null,
+          notes: `Visited ${dest.visitCount} time${dest.visitCount > 1 ? 's' : ''} via flights`
+        });
+      }
+
+      res.json({ 
+        message: "Flight data processed successfully",
+        flightsProcessed: flights.length,
+        destinationsAdded: destinations.length,
+        flights: flights.slice(0, 10) // Return first 10 for preview
+      });
+    } catch (error) {
+      console.error("Flight upload error:", error);
+      res.status(500).json({ message: "Failed to process flight data" });
+    }
+  });
+
+  // Get flight routes for visualization
+  app.get("/api/flights/routes", async (req, res) => {
+    try {
+      // Try to read the uploaded CSV file
+      const csvPath = path.join(process.cwd(), 'attached_assets', 'FlightyExport-2025-06-11_1749659322224.csv');
+      
+      if (fs.existsSync(csvPath)) {
+        const csvContent = fs.readFileSync(csvPath, 'utf-8');
+        const flights = parseFlightCSV(csvContent);
+        
+        // Return flight routes for globe visualization
+        const routes = flights.map(flight => ({
+          id: flight.id,
+          from: {
+            code: flight.from,
+            name: flight.fromAirport?.city,
+            latitude: flight.fromAirport?.latitude,
+            longitude: flight.fromAirport?.longitude
+          },
+          to: {
+            code: flight.to,
+            name: flight.toAirport?.city,
+            latitude: flight.toAirport?.latitude,
+            longitude: flight.toAirport?.longitude
+          },
+          date: flight.date,
+          airline: flight.airline,
+          flightNumber: flight.flightNumber
+        }));
+        
+        res.json(routes);
+      } else {
+        res.json([]);
+      }
+    } catch (error) {
+      console.error("Flight routes error:", error);
+      res.status(500).json({ message: "Failed to get flight routes" });
     }
   });
 

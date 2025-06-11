@@ -56,7 +56,7 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
     };
   }, []);
 
-  // Update markers when locations change
+  // Update markers and flight routes when locations change
   useEffect(() => {
     if (!globeRef.current) return;
 
@@ -99,6 +99,47 @@ export default function Globe3D({ locations, onLocationClick }: GlobeProps) {
         } else {
           document.body.style.cursor = 'auto';
         }
+      });
+
+    // Load and display flight routes
+    fetch('/api/flights/routes')
+      .then(response => response.json())
+      .then(routes => {
+        const validRoutes = routes.filter((route: any) => 
+          route.from.latitude && route.from.longitude && 
+          route.to.latitude && route.to.longitude
+        );
+
+        // Add flight paths as arcs
+        globeRef.current
+          .arcsData(validRoutes)
+          .arcStartLat((d: any) => d.from.latitude)
+          .arcStartLng((d: any) => d.from.longitude)
+          .arcEndLat((d: any) => d.to.latitude)
+          .arcEndLng((d: any) => d.to.longitude)
+          .arcColor(() => '#ff6b35')
+          .arcAltitude(0.3)
+          .arcStroke(2)
+          .arcDashLength(0.4)
+          .arcDashGap(0.2)
+          .arcDashAnimateTime(3000)
+          .arcLabel((d: any) => `
+            <div style="
+              background: rgba(0, 0, 0, 0.8); 
+              color: white; 
+              padding: 8px 12px; 
+              border-radius: 6px; 
+              font-size: 14px;
+              max-width: 250px;
+            ">
+              <strong>${d.airline} ${d.flightNumber}</strong><br/>
+              <span style="color: #ff6b35;">${d.from.name} → ${d.to.name}</span><br/>
+              <small>${d.date}</small>
+            </div>
+          `);
+      })
+      .catch(error => {
+        console.log('Flight routes not available:', error);
       });
 
     // Focus on current location initially
