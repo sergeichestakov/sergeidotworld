@@ -295,6 +295,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // CSV flight data upload endpoint
+  app.post("/api/flights/upload", requireAuth, upload.single('csvFile'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No CSV file provided" });
+      }
+
+      const csvContent = req.file.buffer.toString('utf-8');
+      const newFlights = parseFlightCSV(csvContent);
+      
+      if (newFlights.length === 0) {
+        return res.status(400).json({ message: "No valid flight data found in CSV" });
+      }
+
+      // Get existing flight data for deduplication
+      const existingFlightData = fs.readFileSync(path.join(process.cwd(), 'attached_assets', 'FlightyExport-2025-06-11_1749659322224.csv'), 'utf-8');
+      const existingFlights = parseFlightCSV(existingFlightData);
+      
+      // Create a set of existing flight identifiers for deduplication
+      const existingFlightIds = new Set(
+        existingFlights.map(flight => `${flight.date}_${flight.airline}_${flight.flightNumber}_${flight.from}_${flight.to}`)
+      );
+
+      // Filter out duplicate flights
+      const uniqueNewFlights = newFlights.filter(flight => {
+        const flightId = `${flight.date}_${flight.airline}_${flight.flightNumber}_${flight.from}_${flight.to}`;
+        return !existingFlightIds.has(flightId);
+      });
+
+      if (uniqueNewFlights.length === 0) {
+        return res.json({ 
+          message: `All ${newFlights.length} flights already exist in the system. No new flights added.`,
+          processed: newFlights.length,
+          added: 0,
+          duplicates: newFlights.length
+        });
+      }
+
+      // Combine existing and new flights
+      const allFlights = [...existingFlights, ...uniqueNewFlights];
+      
+      // Update the CSV file with combined data
+      const csvHeader = "Date,Departure Airport,Arrival Airport,Departure Time (scheduled),Departure Time (actual),Arrival Time (scheduled),Arrival Time (actual),Airline,Flight #,Aircraft Type,Registration";
+      const csvRows = allFlights.map(flight => {
+        return [
+          flight.date,
+          flight.from,
+          flight.to,
+          flight.departureScheduled || '',
+          flight.departureActual || '',
+          flight.arrivalScheduled || '',
+          flight.arrivalActual || '',
+          flight.airline,
+          flight.flightNumber,
+          flight.aircraft || '',
+          '' // Registration (not in our data structure)
+        ].join(',');
+      });
+      
+      const updatedCsvContent = [csvHeader, ...csvRows].join('\n');
+      fs.writeFileSync(path.join(process.cwd(), 'attached_assets', 'FlightyExport-2025-06-11_1749659322224.csv'), updatedCsvContent);
+
+      // Get unique destinations from all flights and update storage
+      const destinations = getUniqueDestinations(allFlights);
+      
+      // Clear existing visited locations (keeping home and current)
+      const locations = await storage.getLocations();
+      const visitedLocations = locations.filter(loc => loc.type === 'visited');
+      for (const location of visitedLocations) {
+        await storage.deleteLocation(location.id);
+      }
+
+      // Add new destinations as visited locations
+      let addedCount = 0;
+      for (const dest of destinations) {
+        try {
+          await storage.createLocation({
+            name: dest.city,
+            latitude: dest.latitude,
+            longitude: dest.longitude,
+            type: 'visited',
+            visitDate: null,
+            notes: `${dest.name} (${dest.code}) - ${dest.visitCount} visit${dest.visitCount > 1 ? 's' : ''} - ${dest.country}`
+          });
+          addedCount++;
+        } catch (error) {
+          console.error(`Failed to add destination ${dest.city}:`, error);
+        }
+      }
+
+      // Update countries visited count
+      const uniqueCountries = new Set(destinations.map(d => d.country)).size;
+      await storage.setSetting('countries_visited', uniqueCountries.toString());
+
+      res.json({ 
+        message: `Successfully processed ${newFlights.length} flights. Added ${uniqueNewFlights.length} new flights and ${addedCount} destinations. Updated ${uniqueCountries} countries visited.`,
+        processed: newFlights.length,
+        added: uniqueNewFlights.length,
+        duplicates: newFlights.length - uniqueNewFlights.length,
+        destinations: addedCount,
+        countries: uniqueCountries
+      });
+
+    } catch (error) {
+      console.error('CSV upload error:', error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to process CSV file" 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
