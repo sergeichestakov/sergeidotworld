@@ -16,6 +16,7 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [uploadStatus, setUploadStatus] = useState("");
   const queryClient = useQueryClient();
 
   const { data: locations = [] } = useQuery<Location[]>({
@@ -76,6 +77,41 @@ export default function AdminPage() {
       setAuthError("");
     } catch (error) {
       console.error('Logout failed:', error);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      setUploadStatus('Error: Please select a CSV file');
+      return;
+    }
+
+    setUploadStatus('Uploading...');
+
+    try {
+      const formData = new FormData();
+      formData.append('csvFile', file);
+
+      const response = await fetch('/api/flights/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setUploadStatus(`Success: ${result.message}`);
+        // Clear the file input
+        event.target.value = '';
+      } else {
+        setUploadStatus(`Error: ${result.message || 'Upload failed'}`);
+      }
+    } catch (error) {
+      setUploadStatus('Error: Failed to upload file');
+      console.error('Upload error:', error);
     }
   };
 
@@ -208,7 +244,7 @@ export default function AdminPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex items-center space-x-4">
                 <Label htmlFor="countries-visited" className="text-white min-w-32">
                   Countries Visited:
@@ -232,6 +268,26 @@ export default function AdminPage() {
                 <span className="text-gray-400 text-sm">
                   Manual override for countries count display
                 </span>
+              </div>
+
+              <div className="border-t border-gray-600 pt-4">
+                <Label className="text-white text-base font-medium">
+                  Flight Data Upload
+                </Label>
+                <p className="text-gray-400 text-sm mb-3">
+                  Upload a CSV file with flight data to update routes and visited destinations
+                </p>
+                <Input
+                  type="file"
+                  accept=".csv"
+                  className="bg-gray-800 border-gray-600 text-white file:bg-gray-700 file:text-white file:border-0 file:mr-4 file:py-2 file:px-4 file:rounded"
+                  onChange={handleFileUpload}
+                />
+                {uploadStatus && (
+                  <p className={`text-sm mt-2 ${uploadStatus.includes('Error') ? 'text-red-400' : 'text-green-400'}`}>
+                    {uploadStatus}
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
