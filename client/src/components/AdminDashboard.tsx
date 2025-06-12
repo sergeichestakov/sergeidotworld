@@ -181,6 +181,20 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
     }
   }, [currentLocation]);
 
+  // Populate edit form when a location is selected for editing
+  useEffect(() => {
+    if (editingLocation) {
+      editLocationForm.reset({
+        name: editingLocation.name,
+        latitude: editingLocation.latitude,
+        longitude: editingLocation.longitude,
+        type: editingLocation.type,
+        visitDate: editingLocation.visitDate || new Date().toISOString().split('T')[0],
+        notes: editingLocation.notes || "",
+      });
+    }
+  }, [editingLocation]);
+
   const content = (
     <div className="space-y-6">
       {/* Update Current Location */}
