@@ -112,6 +112,18 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
         .then(res => res.json())
         .then(flights => {
           if (flights && flights.length > 0) {
+            // Calculate distance between two points using Haversine formula
+            const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+              const R = 6371; // Earth's radius in km
+              const dLat = (lat2 - lat1) * Math.PI / 180;
+              const dLon = (lon2 - lon1) * Math.PI / 180;
+              const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLon/2) * Math.sin(dLon/2);
+              const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+              return R * c;
+            };
+
             const arcsData = flights
               .filter(flight => 
                 flight.from && 
@@ -125,12 +137,28 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
                 !isNaN(flight.to.latitude) &&
                 !isNaN(flight.to.longitude)
               )
-              .map(flight => ({
-                startLat: flight.from.latitude,
-                startLng: flight.from.longitude,
-                endLat: flight.to.latitude,
-                endLng: flight.to.longitude
-              }));
+              .map(flight => {
+                const distance = calculateDistance(
+                  flight.from.latitude, flight.from.longitude,
+                  flight.to.latitude, flight.to.longitude
+                );
+                
+                // Normalize distance to altitude range [0.05, 0.3]
+                // Max typical flight distance is about 20,000 km (around the world)
+                const maxDistance = 20000;
+                const minAltitude = 0.05;
+                const maxAltitude = 0.3;
+                const normalizedDistance = Math.min(distance / maxDistance, 1);
+                const altitude = minAltitude + (normalizedDistance * (maxAltitude - minAltitude));
+                
+                return {
+                  startLat: flight.from.latitude,
+                  startLng: flight.from.longitude,
+                  endLat: flight.to.latitude,
+                  endLng: flight.to.longitude,
+                  altitude: altitude
+                };
+              });
 
             console.log(`Loading ${arcsData.length} valid flight routes out of ${flights.length} total`);
             
@@ -138,7 +166,7 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
               globeRef.current
                 .arcsData(arcsData)
                 .arcColor(() => '#87ceeb')
-                .arcAltitude(0.4)
+                .arcAltitude((arc: any) => arc.altitude)
                 .arcStroke(0.8)
                 .arcDashLength(0.9)
                 .arcDashGap(4)
