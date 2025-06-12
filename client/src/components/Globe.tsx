@@ -23,9 +23,9 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Initialize Globe.gl with proper day/night cycle support
+    // Initialize Globe.gl with original textures
     const globe = new Globe(mountRef.current)
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg')
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
       .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
       .width(window.innerWidth)
@@ -37,47 +37,55 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
       .enablePointerInteraction(true)
       .pointOfView({ lat: 0, lng: 0, altitude: 2.5 });
 
-    // Real-time day/night cycle using current sun position
-    const updateSun = () => {
+    // Day/night overlay using hex bins for night areas
+    const updateDayNightOverlay = () => {
       const now = new Date();
-      const lng = (now.getUTCHours() + now.getUTCMinutes() / 60) * 15 - 180;
+      const sunLng = (now.getUTCHours() + now.getUTCMinutes() / 60) * 15 - 180;
       const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
-      const lat = -23.44 * Math.cos(2 * Math.PI * dayOfYear / 365.25);
+      const sunLat = -23.44 * Math.cos(2 * Math.PI * dayOfYear / 365.25);
       
-      // Set sun position for lighting
-      const sunRadius = 300;
-      const sunX = sunRadius * Math.cos(lat * Math.PI / 180) * Math.cos(lng * Math.PI / 180);
-      const sunY = sunRadius * Math.sin(lat * Math.PI / 180);
-      const sunZ = sunRadius * Math.cos(lat * Math.PI / 180) * Math.sin(lng * Math.PI / 180);
-      
-      // Access Three.js scene to add directional light
-      const scene = globe.scene();
-      
-      // Remove existing sun light
-      const existingSunLight = scene.children.find((obj: any) => obj.name === 'sunLight');
-      if (existingSunLight) {
-        scene.remove(existingSunLight);
+      // Create night overlay points
+      const nightPoints = [];
+      for (let lat = -85; lat <= 85; lat += 8) {
+        for (let lng = -175; lng <= 175; lng += 8) {
+          // Calculate solar elevation angle
+          const latRad = lat * Math.PI / 180;
+          const lngRad = lng * Math.PI / 180;
+          const sunLatRad = sunLat * Math.PI / 180;
+          const sunLngRad = sunLng * Math.PI / 180;
+          
+          const solarElevation = Math.asin(
+            Math.sin(latRad) * Math.sin(sunLatRad) +
+            Math.cos(latRad) * Math.cos(sunLatRad) * Math.cos(lngRad - sunLngRad)
+          );
+          
+          // If sun is below horizon, add to night overlay
+          if (solarElevation < 0) {
+            const darkness = Math.min(Math.abs(solarElevation) * 1.5, 0.8);
+            nightPoints.push({
+              lat: lat,
+              lng: lng,
+              weight: darkness
+            });
+          }
+        }
       }
       
-      // Add new directional light for sun
-      const sunLight = new THREE.DirectionalLight('#ffaa00', 1.2);
-      sunLight.position.set(sunX, sunY, sunZ);
-      sunLight.name = 'sunLight';
-      scene.add(sunLight);
-      
-      // Update ambient light based on day/night
-      const ambientLight = scene.children.find((obj: any) => obj.type === 'AmbientLight');
-      if (ambientLight) {
-        (ambientLight as THREE.AmbientLight).intensity = 0.3;
-      } else {
-        const newAmbientLight = new THREE.AmbientLight('#ffffff', 0.3);
-        scene.add(newAmbientLight);
-      }
+      // Apply night overlay using hex bins
+      globe
+        .hexBinPointsData(nightPoints)
+        .hexBinPointLat(d => d.lat)
+        .hexBinPointLng(d => d.lng)
+        .hexBinPointWeight(d => d.weight)
+        .hexBinResolution(4)
+        .hexTopColor(() => 'rgba(0, 0, 0, 0.6)')
+        .hexSideColor(() => 'rgba(0, 0, 0, 0.4)')
+        .hexAltitude(0.01);
     };
 
-    // Initial sun position and updates every 5 minutes
-    updateSun();
-    const dayNightInterval = setInterval(updateSun, 5 * 60 * 1000);
+    // Initial overlay and periodic updates
+    updateDayNightOverlay();
+    const dayNightInterval = setInterval(updateDayNightOverlay, 5 * 60 * 1000);
 
     // Configure controls for auto-rotation
     const controls = globe.controls();
