@@ -161,9 +161,9 @@ export default function AdminPage() {
   const countriesVisitedSetting = settings.find(s => s.key === 'countries_visited');
 
   return (
-    <div className="min-h-screen bg-space-dark text-white">
+    <div className="min-h-screen bg-space-dark text-white flex flex-col">
       {/* Header */}
-      <header className="border-b border-gray-700 p-6">
+      <header className="border-b border-gray-700 p-6 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-amber-500 rounded-full flex items-center justify-center">
@@ -194,7 +194,7 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <div className="p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Global Settings Section */}
         <Card className="bg-space-light border-gray-700">
           <CardHeader>
