@@ -31,6 +31,15 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Debug state changes
+  useEffect(() => {
+    console.log('showAddLocation state:', showAddLocation);
+  }, [showAddLocation]);
+
+  useEffect(() => {
+    console.log('editingLocation state:', editingLocation);
+  }, [editingLocation]);
+
   const { data: locations = [] } = useQuery<Location[]>({
     queryKey: ["/api/locations"],
   });
@@ -280,7 +289,10 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
               </CardDescription>
             </div>
             <Button 
-              onClick={() => setShowAddLocation(true)}
+              onClick={() => {
+                console.log('Add Location clicked');
+                setShowAddLocation(true);
+              }}
               className="bg-cyan-500 hover:bg-cyan-600"
             >
               <Plus size={16} className="mr-2" />
@@ -348,7 +360,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
 
       {/* Add Location Dialog - Always render regardless of embedded mode */}
       <Dialog open={showAddLocation} onOpenChange={setShowAddLocation}>
-        <DialogContent className="bg-space-medium border-gray-600">
+        <DialogContent className="bg-space-medium border-gray-600" style={{ backgroundColor: '#1a1a1a' }}>
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-white">Add New Location</DialogTitle>
           </DialogHeader>

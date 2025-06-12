@@ -271,31 +271,25 @@ export default function AdminPage() {
               </div>
 
               <div className="border-t border-gray-600 pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <Label className="text-white text-base font-medium">
-                      Flight Data Upload
-                    </Label>
-                    <p className="text-gray-400 text-sm">
-                      Upload a CSV file with flight data to update routes and visited destinations
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      id="csvFileInput"
-                    />
-                    <label
-                      htmlFor="csvFileInput"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded cursor-pointer transition-colors"
-                    >
-                      Upload CSV
-                    </label>
-                  </div>
-                </div>
+                <Label className="text-white text-base font-medium">
+                  Flight Data Upload
+                </Label>
+                <p className="text-gray-400 text-sm mb-3">
+                  Upload a CSV file with flight data to update routes and visited destinations
+                </p>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="csvFileInput"
+                />
+                <label
+                  htmlFor="csvFileInput"
+                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded cursor-pointer transition-colors"
+                >
+                  Upload CSV
+                </label>
                 {uploadStatus && (
                   <p className={`text-sm mt-2 ${uploadStatus.includes('Error') ? 'text-red-400' : 'text-green-400'}`}>
                     {uploadStatus}
