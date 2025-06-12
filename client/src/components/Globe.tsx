@@ -143,11 +143,11 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
                   flight.to.latitude, flight.to.longitude
                 );
                 
-                // Normalize distance to altitude range [0.05, 0.3]
+                // Normalize distance to altitude range [0.05, 0.4]
                 // Max typical flight distance is about 20,000 km (around the world)
                 const maxDistance = 20000;
                 const minAltitude = 0.05;
-                const maxAltitude = 0.3;
+                const maxAltitude = 0.4;
                 const normalizedDistance = Math.min(distance / maxDistance, 1);
                 const altitude = minAltitude + (normalizedDistance * (maxAltitude - minAltitude));
                 
