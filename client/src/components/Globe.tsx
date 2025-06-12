@@ -108,28 +108,29 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
     // Handle flight routes
     if (showFlights && locations.length > 0) {
       // Get flight data from the server
-      fetch('/api/flights')
+      fetch('/api/flights/routes')
         .then(res => res.json())
         .then(flights => {
           if (flights && flights.length > 0) {
             const arcsData = flights
-              .filter(flight => flight.fromAirport && flight.toAirport)
+              .filter(flight => flight.from && flight.to && flight.from.latitude && flight.to.latitude)
               .map(flight => ({
-                startLat: flight.fromAirport.latitude,
-                startLng: flight.fromAirport.longitude,
-                endLat: flight.toAirport.latitude,
-                endLng: flight.toAirport.longitude
+                startLat: flight.from.latitude,
+                startLng: flight.from.longitude,
+                endLat: flight.to.latitude,
+                endLng: flight.to.longitude
               }));
 
+            console.log(`Loading ${arcsData.length} flight routes`);
             globeRef.current
               .arcsData(arcsData)
               .arcColor('#ffab91')
-              .arcAltitude(0.1)
-              .arcStroke(0.5)
+              .arcAltitude(0.05)
+              .arcStroke(1.5)
               .arcDashLength(0.9)
               .arcDashGap(4)
               .arcDashAnimateTime(0)
-              .arcsTransitionDuration(0);
+              .arcsTransitionDuration(1000);
           }
         })
         .catch(err => console.warn('Failed to load flight data:', err));
