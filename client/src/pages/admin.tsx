@@ -277,12 +277,14 @@ export default function AdminPage() {
                 <p className="text-gray-400 text-sm mb-3">
                   Upload a CSV file with flight data to update routes and visited destinations
                 </p>
-                <Input
-                  type="file"
-                  accept=".csv"
-                  className="bg-gray-800 border-gray-600 text-white file:bg-gray-700 file:text-white file:border-0 file:mr-4 file:py-2 file:px-4 file:rounded file:cursor-pointer hover:file:bg-gray-600 h-12"
-                  onChange={handleFileUpload}
-                />
+                <div className="relative">
+                  <Input
+                    type="file"
+                    accept=".csv"
+                    className="bg-gray-800 border-gray-600 text-white file:bg-gray-700 file:text-white file:border-0 file:mr-4 file:py-0 file:px-4 file:rounded file:cursor-pointer hover:file:bg-gray-600 h-12 flex items-center file:h-full"
+                    onChange={handleFileUpload}
+                  />
+                </div>
                 {uploadStatus && (
                   <p className={`text-sm mt-2 ${uploadStatus.includes('Error') ? 'text-red-400' : 'text-green-400'}`}>
                     {uploadStatus}
