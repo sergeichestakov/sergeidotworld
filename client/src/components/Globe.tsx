@@ -1,5 +1,6 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Globe from 'globe.gl';
+import * as THREE from 'three';
 import { Location } from '@shared/schema';
 
 interface GlobeProps {
@@ -22,22 +23,9 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Calculate sun position for day/night cycle
-    const getSunPosition = () => {
-      const now = new Date();
-      const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
-      const declination = 23.45 * Math.sin((360 * (284 + dayOfYear) / 365) * Math.PI / 180);
-      
-      // Solar noon longitude (changes throughout the day)
-      const minutesFromMidnight = now.getUTCHours() * 60 + now.getUTCMinutes();
-      const longitude = (minutesFromMidnight - 720) * 0.25; // 15 degrees per hour
-      
-      return { lat: declination, lng: longitude };
-    };
-
-    // Initialize Globe.gl
+    // Initialize Globe.gl with day/night textures
     const globe = new Globe(mountRef.current)
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg')
       .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
       .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
       .width(window.innerWidth)
@@ -49,57 +37,63 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
       .enablePointerInteraction(true)
       .pointOfView({ lat: 0, lng: 0, altitude: 2.5 });
 
-    // Set up day/night cycle using polygons
+    // Implement accurate day/night cycle using real sun position
     const updateDayNight = () => {
-      const sunPos = getSunPosition();
+      const now = new Date();
+      const sunLng = (now.getUTCHours() + now.getUTCMinutes() / 60) * 15 - 180;
       
-      // Create the terminator line (day/night boundary)
-      const terminatorPolygon = [];
-      for (let i = 0; i <= 360; i += 5) {
-        const lng = i - 180;
-        // Calculate latitude where sun angle is 90 degrees (terminator line)
-        const lat = Math.atan(-Math.cos((lng - sunPos.lng) * Math.PI / 180) / Math.tan(sunPos.lat * Math.PI / 180)) * 180 / Math.PI;
+      // Calculate sun's declination angle (seasonal variation)
+      const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+      const sunLat = -23.44 * Math.cos(2 * Math.PI * dayOfYear / 365.25);
+      
+      // Create terminator line coordinates
+      const terminatorCoords = [];
+      for (let lng = -180; lng <= 180; lng += 5) {
+        // Calculate latitude where sun is exactly at horizon
+        const lat = Math.atan(-Math.cos((lng - sunLng) * Math.PI / 180) / Math.tan(sunLat * Math.PI / 180)) * 180 / Math.PI;
         
-        if (!isNaN(lat) && lat >= -90 && lat <= 90) {
-          terminatorPolygon.push([lng, lat]);
+        if (!isNaN(lat) && Math.abs(lat) <= 90) {
+          terminatorCoords.push([lng, lat]);
         }
       }
       
       // Create night side polygon
-      const nightPolygon = [...terminatorPolygon];
-      
-      // Complete the polygon to cover the night side
-      if (sunPos.lat >= 0) {
-        // Sun in northern hemisphere - night covers south
-        nightPolygon.push([180, -90], [-180, -90]);
-      } else {
-        // Sun in southern hemisphere - night covers north  
-        nightPolygon.push([180, 90], [-180, 90]);
-      }
-      
-      const nightData = [{
-        geometry: {
-          type: 'Polygon',
-          coordinates: [nightPolygon]
-        },
-        properties: {
-          name: 'night'
+      if (terminatorCoords.length > 0) {
+        const nightPolygon = [...terminatorCoords];
+        
+        // Close the polygon to cover the night side
+        if (sunLat >= 0) {
+          // Northern summer - night covers southern hemisphere
+          nightPolygon.push([180, -90], [-180, -90], [-180, terminatorCoords[0][1]]);
+        } else {
+          // Northern winter - night covers northern hemisphere  
+          nightPolygon.push([180, 90], [-180, 90], [-180, terminatorCoords[0][1]]);
         }
-      }];
-      
-      globe
-        .polygonsData(nightData)
-        .polygonGeoJsonGeometry('geometry')
-        .polygonCapColor(() => 'rgba(0, 0, 0, 0.4)')
-        .polygonSideColor(() => 'rgba(0, 0, 0, 0.2)')
-        .polygonStrokeColor(() => 'rgba(0, 0, 0, 0)')
-        .polygonAltitude(0.005);
+        
+        const nightData = [{
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [nightPolygon]
+          },
+          properties: {
+            name: 'night-shadow'
+          }
+        }];
+        
+        // Apply night overlay using polygons
+        globe
+          .polygonsData(nightData)
+          .polygonGeoJsonGeometry('geometry')
+          .polygonCapColor(() => 'rgba(0, 0, 0, 0.4)')
+          .polygonSideColor(() => 'rgba(0, 0, 0, 0.2)')
+          .polygonStrokeColor(() => 'transparent')
+          .polygonAltitude(0.002);
+      }
     };
 
-    // Initial day/night setup
+    // Initial update and periodic updates
     updateDayNight();
-    
-    // Update every 5 minutes
     const dayNightInterval = setInterval(updateDayNight, 5 * 60 * 1000);
 
     // Configure controls for auto-rotation
