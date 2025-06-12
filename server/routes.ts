@@ -242,20 +242,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin authentication endpoint
-  app.post("/api/admin/auth", (req, res) => {
-    const adminPassword = process.env.ADMIN_DASHBOARD_PASSWORD;
-    const providedPassword = req.body.password;
-
-    if (!adminPassword) {
-      return res.status(500).json({ message: "Admin password not set" });
+  // Middleware to check admin authentication
+  const requireAuth = (req: any, res: any, next: any) => {
+    if (req.session?.isAdminAuthenticated) {
+      next();
+    } else {
+      res.status(401).json({ message: "Authentication required" });
     }
+  };
+
+  // Check current auth status
+  app.get("/api/admin/status", (req: any, res) => {
+    res.json({ authenticated: !!req.session?.isAdminAuthenticated });
+  });
+
+  // Admin authentication endpoint
+  app.post("/api/admin/auth", (req: any, res) => {
+    const adminPassword = process.env.ADMIN_DASHBOARD_PASSWORD || 'admin123';
+    const providedPassword = req.body.password;
     
     if (providedPassword === adminPassword) {
+      req.session.isAdminAuthenticated = true;
       res.json({ success: true });
     } else {
       res.status(401).json({ success: false, message: "Invalid password" });
     }
+  });
+
+  // Admin logout endpoint
+  app.post("/api/admin/logout", (req: any, res) => {
+    req.session.destroy((err: any) => {
+      if (err) {
+        res.status(500).json({ message: "Failed to logout" });
+      } else {
+        res.json({ success: true });
+      }
+    });
   });
 
   const httpServer = createServer(app);

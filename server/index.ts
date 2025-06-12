@@ -1,11 +1,28 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { importFlightDataOnStartup } from "./flight-import";
+import crypto from "crypto";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Generate a deployment-specific secret that changes on each restart
+const deploymentSecret = crypto.randomBytes(64).toString('hex');
+
+// Session configuration
+app.use(session({
+  secret: deploymentSecret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true in production with HTTPS
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();

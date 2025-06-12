@@ -15,6 +15,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const queryClient = useQueryClient();
 
   const { data: locations = [] } = useQuery<Location[]>({
@@ -27,6 +28,25 @@ export default function AdminPage() {
     enabled: isAuthenticated,
   });
 
+  // Check authentication status on page load
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch('/api/admin/status');
+        const data = await response.json();
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('Failed to check auth status:', error);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
+
   const authenticateAdmin = async () => {
     setIsLoading(true);
     setAuthError("");
@@ -37,6 +57,7 @@ export default function AdminPage() {
       
       if (data.success) {
         setIsAuthenticated(true);
+        setPassword(""); // Clear password after successful auth
       } else {
         setAuthError("Invalid password");
       }
@@ -44,6 +65,17 @@ export default function AdminPage() {
       setAuthError("Authentication failed");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await apiRequest("POST", "/api/admin/logout", {});
+      setIsAuthenticated(false);
+      setPassword("");
+      setAuthError("");
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   };
 
@@ -64,6 +96,15 @@ export default function AdminPage() {
     e.preventDefault();
     authenticateAdmin();
   };
+
+  // Show loading state while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-space-dark flex items-center justify-center">
+        <div className="text-white">Checking authentication...</div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
