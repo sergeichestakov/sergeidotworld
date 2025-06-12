@@ -137,8 +137,8 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
             if (arcsData.length > 0) {
               globeRef.current
                 .arcsData(arcsData)
-                .arcColor(() => '#ffab91')
-                .arcAltitude(0.15)
+                .arcColor(() => '#87ceeb')
+                .arcAltitude(0.4)
                 .arcStroke(0.8)
                 .arcDashLength(0.9)
                 .arcDashGap(4)
