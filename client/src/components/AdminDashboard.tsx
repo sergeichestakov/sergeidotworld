@@ -33,29 +33,23 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
 
   const { data: locations = [] } = useQuery<Location[]>({
     queryKey: ["/api/locations"],
-    enabled: isOpen,
   });
 
   const { data: currentLocation } = useQuery<Location>({
     queryKey: ["/api/locations/current"],
-    enabled: isOpen,
   });
 
-  const visitedLocations = locations.filter(loc => loc.type === 'visited');
-
-  // Current location form
   const currentLocationForm = useForm<z.infer<typeof currentLocationSchema>>({
     resolver: zodResolver(currentLocationSchema),
     defaultValues: {
-      name: currentLocation?.name || "",
-      latitude: currentLocation?.latitude || 0,
-      longitude: currentLocation?.longitude || 0,
-      visitDate: currentLocation?.visitDate || null,
-      notes: currentLocation?.notes || "",
+      name: "",
+      latitude: 0,
+      longitude: 0,
+      visitDate: new Date().toISOString().split('T')[0],
+      notes: "",
     },
   });
 
-  // Add location form
   const addLocationForm = useForm<z.infer<typeof addLocationSchema>>({
     resolver: zodResolver(addLocationSchema),
     defaultValues: {
@@ -63,124 +57,67 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
       latitude: 0,
       longitude: 0,
       type: "visited",
-      visitDate: "",
+      visitDate: new Date().toISOString().split('T')[0],
       notes: "",
     },
   });
 
-  // Update current location mutation
   const updateCurrentLocationMutation = useMutation({
     mutationFn: async (data: z.infer<typeof currentLocationSchema>) => {
       const response = await apiRequest("PUT", "/api/locations/current", data);
       return response.json();
     },
     onSuccess: () => {
+      toast({ title: "Current location updated successfully!" });
       queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/locations/current"] });
-      toast({
-        title: "Location Updated",
-        description: "Current location has been updated successfully.",
-      });
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to update current location.",
-        variant: "destructive",
-      });
+    onError: () => {
+      toast({ title: "Failed to update current location", variant: "destructive" });
     },
   });
 
-  // Add location mutation
   const addLocationMutation = useMutation({
     mutationFn: async (data: z.infer<typeof addLocationSchema>) => {
       const response = await apiRequest("POST", "/api/locations", data);
       return response.json();
     },
     onSuccess: () => {
+      toast({ title: "Location added successfully!" });
       queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
-      setShowAddLocation(false);
       addLocationForm.reset();
-      toast({
-        title: "Location Added",
-        description: "New location has been added successfully.",
-      });
+      setShowAddLocation(false);
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to add location.",
-        variant: "destructive",
-      });
+    onError: () => {
+      toast({ title: "Failed to add location", variant: "destructive" });
     },
   });
 
-  // Delete location mutation
-  const deleteLocationMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/locations/${id}`);
+  const updateLocationMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<InsertLocation> }) => {
+      const response = await apiRequest("PUT", `/api/locations/${id}`, data);
+      return response.json();
     },
     onSuccess: () => {
+      toast({ title: "Location updated successfully!" });
       queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
-      toast({
-        title: "Location Deleted",
-        description: "Location has been deleted successfully.",
-      });
+      setEditingLocation(null);
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to delete location.",
-        variant: "destructive",
-      });
+    onError: () => {
+      toast({ title: "Failed to update location", variant: "destructive" });
     },
   });
 
-  // Import flight destinations mutation
-  const importFlightDataMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch('/api/flights/routes');
-      const routes = await response.json();
-      
-      // Get unique destinations from flight data
-      const destinations = new Map();
-      routes.forEach((route: any) => {
-        if (route.to.latitude && route.to.longitude) {
-          const key = `${route.to.code}`;
-          if (!destinations.has(key)) {
-            destinations.set(key, {
-              name: route.to.name || route.to.code,
-              latitude: route.to.latitude,
-              longitude: route.to.longitude,
-              type: "visited",
-              visitDate: null,
-              notes: `Flight destination: ${route.to.code}`
-            });
-          }
-        }
-      });
-
-      // Create locations for each destination
-      const promises = Array.from(destinations.values()).map(async dest => {
-        const response = await apiRequest("POST", "/api/locations", dest);
-        return response.json();
-      });
-      
-      return Promise.all(promises);
+  const deleteLocationMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/locations/${id}`, {});
     },
-    onSuccess: (results) => {
+    onSuccess: () => {
+      toast({ title: "Location deleted successfully!" });
       queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
-      toast({
-        title: "Flight Data Imported",
-        description: `Successfully imported ${results.length} flight destinations.`,
-      });
     },
-    onError: (error) => {
-      toast({
-        title: "Import Failed",
-        description: "Failed to import flight destinations.",
-        variant: "destructive",
-      });
+    onError: () => {
+      toast({ title: "Failed to delete location", variant: "destructive" });
     },
   });
 
@@ -192,7 +129,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
     addLocationMutation.mutate(data);
   };
 
-  const handleDeleteLocation = (id: number) => {
+  const onDeleteLocation = (id: number) => {
     if (confirm("Are you sure you want to delete this location?")) {
       deleteLocationMutation.mutate(id);
     }
@@ -205,7 +142,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
         name: currentLocation.name,
         latitude: currentLocation.latitude,
         longitude: currentLocation.longitude,
-        visitDate: currentLocation.visitDate,
+        visitDate: currentLocation.visitDate || new Date().toISOString().split('T')[0],
         notes: currentLocation.notes || "",
       });
     }
@@ -227,147 +164,144 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
         <CardContent>
           <Form {...currentLocationForm}>
             <form onSubmit={currentLocationForm.handleSubmit(onUpdateCurrentLocation)} className="space-y-4">
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-gray-300">Search Location</Label>
-                      <LocationAutocomplete
-                        value={currentLocationForm.watch("name")}
-                        onChange={(location) => {
-                          currentLocationForm.setValue("name", location.name);
-                          currentLocationForm.setValue("latitude", location.latitude);
-                          currentLocationForm.setValue("longitude", location.longitude);
-                        }}
-                        placeholder="Search for your current location..."
-                      />
-                    </div>
-                    
-                    <FormField
-                      control={currentLocationForm.control}
-                      name="visitDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-300">Visit Date</FormLabel>
-                          <FormControl>
-                            <Input {...field} value={field.value || ""} type="month" className="bg-gray-800 border-gray-600 text-white placeholder-gray-400" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <FormField
-                    control={currentLocationForm.control}
-                    name="notes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-300">Notes</FormLabel>
-                        <FormControl>
-                          <Textarea {...field} value={field.value || ""} placeholder="Optional notes..." className="bg-gray-800 border-gray-600 text-white placeholder-gray-400" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-gray-300">Search Location</Label>
+                  <LocationAutocomplete
+                    value={currentLocationForm.watch("name")}
+                    onChange={(location) => {
+                      currentLocationForm.setValue("name", location.name);
+                      currentLocationForm.setValue("latitude", location.latitude);
+                      currentLocationForm.setValue("longitude", location.longitude);
+                    }}
+                    placeholder="Search for your current location..."
                   />
-                  
-                  <div className="flex justify-end">
-                    <Button 
-                      type="submit" 
-                      className="bg-red-500 hover:bg-red-600"
-                      disabled={updateCurrentLocationMutation.isPending}
-                    >
-                      {updateCurrentLocationMutation.isPending ? "Updating..." : "Update Location"}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </div>
-
-            {/* Flight Data Import */}
-            <div className="space-light rounded-xl p-4 border border-gray-700">
-              <h3 className="font-semibold mb-4 flex items-center text-white">
-                <Plane className="text-orange-500 mr-2" size={20} />
-                Flight Data
-              </h3>
-              <div className="flex items-center space-x-4">
-                <Button
-                  onClick={() => importFlightDataMutation.mutate()}
-                  className="bg-orange-500 hover:bg-orange-600"
-                  disabled={importFlightDataMutation.isPending}
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  {importFlightDataMutation.isPending ? "Importing..." : "Import Flight Destinations"}
-                </Button>
-                <p className="text-sm text-gray-400">
-                  Import all flight destinations from your travel history as visited locations
-                </p>
-              </div>
-            </div>
-
-            {/* Visited Locations */}
-            <div className="space-light rounded-xl p-4 border border-gray-700">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold flex items-center text-white">
-                  <MapPin className="text-cyan-500 mr-2" size={20} />
-                  Visited Locations
-                </h3>
-                <Button
-                  onClick={() => setShowAddLocation(true)}
-                  className="bg-cyan-500 hover:bg-cyan-600"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Location
-                </Button>
-              </div>
-
-              <div className="space-y-3 max-h-64 overflow-y-auto">
-                {visitedLocations.map((location) => (
-                  <div key={location.id} className="bg-space-dark rounded-lg p-3 flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium text-white">{location.name}</h4>
-                      <p className="text-sm text-gray-400">
-                        {location.latitude.toFixed(4)}°, {location.longitude.toFixed(4)}°
-                        {location.visitDate && ` • ${location.visitDate}`}
-                      </p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditingLocation(location)}
-                        className="text-gray-400 hover:text-white p-1"
-                      >
-                        <Edit2 size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteLocation(location.id)}
-                        className="text-gray-400 hover:text-red-400 p-1"
-                        disabled={deleteLocationMutation.isPending}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                </div>
                 
-                {visitedLocations.length === 0 && (
-                  <p className="text-gray-400 text-center py-4">No visited locations yet.</p>
-                )}
+                <FormField
+                  control={currentLocationForm.control}
+                  name="visitDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Visit Date</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="date" className="bg-gray-800 border-gray-600 text-white" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={currentLocationForm.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Notes (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} value={field.value || ""} placeholder="Add any notes about your current location..." className="bg-gray-800 border-gray-600 text-white placeholder-gray-400" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
+              
+              <Button 
+                type="submit" 
+                className="bg-red-500 hover:bg-red-600"
+                disabled={updateCurrentLocationMutation.isPending}
+              >
+                {updateCurrentLocationMutation.isPending ? "Updating..." : "Update Current Location"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      {/* Visited Locations */}
+      <Card className="bg-space-light border-gray-700">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-white flex items-center">
+                <Plane className="text-cyan-500 mr-2" size={20} />
+                Visited Locations
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Manage your travel history
+              </CardDescription>
             </div>
+            <Button 
+              onClick={() => setShowAddLocation(true)}
+              className="bg-cyan-500 hover:bg-cyan-600"
+            >
+              <Plus size={16} className="mr-2" />
+              Add Location
+            </Button>
           </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {locations.filter(loc => loc.type === 'visited').map(location => (
+              <div key={location.id} className="flex items-center justify-between p-4 bg-gray-800 rounded-lg border border-gray-700">
+                <div className="flex-1">
+                  <h4 className="font-medium text-white">{location.name}</h4>
+                  <p className="text-sm text-gray-400">
+                    {location.visitDate} • {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+                  </p>
+                  {location.notes && (
+                    <p className="text-sm text-gray-300 mt-1">{location.notes}</p>
+                  )}
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setEditingLocation(location)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <Edit2 size={16} />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onDeleteLocation(location.id)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-space-medium border-gray-600">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">Location Management</DialogTitle>
+          </DialogHeader>
+          {content}
         </DialogContent>
       </Dialog>
 
-      {/* Add Location Modal */}
+      {/* Add Location Dialog */}
       <Dialog open={showAddLocation} onOpenChange={setShowAddLocation}>
         <DialogContent className="bg-space-medium border-gray-600">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-white">Add New Location</DialogTitle>
           </DialogHeader>
-
+          
           <Form {...addLocationForm}>
             <form onSubmit={addLocationForm.handleSubmit(onAddLocation)} className="space-y-4">
               <div>
@@ -379,7 +313,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
                     addLocationForm.setValue("latitude", location.latitude);
                     addLocationForm.setValue("longitude", location.longitude);
                   }}
-                  placeholder="Search for a location to add..."
+                  placeholder="Search for a location..."
                 />
               </div>
               
@@ -390,7 +324,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
                   <FormItem>
                     <FormLabel className="text-gray-300">Visit Date</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} type="month" className="bg-gray-800 border-gray-600 text-white placeholder-gray-400" />
+                      <Input {...field} type="date" className="bg-gray-800 border-gray-600 text-white" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
