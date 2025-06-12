@@ -1,6 +1,5 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Globe from 'globe.gl';
-import * as THREE from 'three';
 import { Location } from '@shared/schema';
 
 interface GlobeProps {
@@ -23,7 +22,7 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Initialize Globe.gl with original textures
+    // Initialize Globe.gl
     const globe = new Globe(mountRef.current)
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
@@ -36,56 +35,6 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
       .atmosphereAltitude(0.1)
       .enablePointerInteraction(true)
       .pointOfView({ lat: 0, lng: 0, altitude: 2.5 });
-
-    // Day/night overlay using hex bins for night areas
-    const updateDayNightOverlay = () => {
-      const now = new Date();
-      const sunLng = (now.getUTCHours() + now.getUTCMinutes() / 60) * 15 - 180;
-      const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
-      const sunLat = -23.44 * Math.cos(2 * Math.PI * dayOfYear / 365.25);
-      
-      // Create night overlay points
-      const nightPoints = [];
-      for (let lat = -85; lat <= 85; lat += 8) {
-        for (let lng = -175; lng <= 175; lng += 8) {
-          // Calculate solar elevation angle
-          const latRad = lat * Math.PI / 180;
-          const lngRad = lng * Math.PI / 180;
-          const sunLatRad = sunLat * Math.PI / 180;
-          const sunLngRad = sunLng * Math.PI / 180;
-          
-          const solarElevation = Math.asin(
-            Math.sin(latRad) * Math.sin(sunLatRad) +
-            Math.cos(latRad) * Math.cos(sunLatRad) * Math.cos(lngRad - sunLngRad)
-          );
-          
-          // If sun is below horizon, add to night overlay
-          if (solarElevation < 0) {
-            const darkness = Math.min(Math.abs(solarElevation) * 1.5, 0.8);
-            nightPoints.push({
-              lat: lat,
-              lng: lng,
-              weight: darkness
-            });
-          }
-        }
-      }
-      
-      // Apply night overlay using hex bins
-      globe
-        .hexBinPointsData(nightPoints)
-        .hexBinPointLat(d => d.lat)
-        .hexBinPointLng(d => d.lng)
-        .hexBinPointWeight(d => d.weight)
-        .hexBinResolution(4)
-        .hexTopColor(() => 'rgba(0, 0, 0, 0.6)')
-        .hexSideColor(() => 'rgba(0, 0, 0, 0.4)')
-        .hexAltitude(0.01);
-    };
-
-    // Initial overlay and periodic updates
-    updateDayNightOverlay();
-    const dayNightInterval = setInterval(updateDayNightOverlay, 5 * 60 * 1000);
 
     // Configure controls for auto-rotation
     const controls = globe.controls();
@@ -109,7 +58,6 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      clearInterval(dayNightInterval);
       if (globeRef.current) {
         globeRef.current._destructor();
       }
