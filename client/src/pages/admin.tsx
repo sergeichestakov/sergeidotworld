@@ -161,7 +161,7 @@ export default function AdminPage() {
   const countriesVisitedSetting = settings.find(s => s.key === 'countries_visited');
 
   return (
-    <div className="min-h-screen bg-space-dark text-white flex flex-col">
+    <div className="h-screen bg-space-dark text-white flex flex-col">
       {/* Header */}
       <header className="border-b border-gray-700 p-6 flex-shrink-0">
         <div className="flex items-center justify-between">
@@ -194,7 +194,8 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-6 space-y-6">
         {/* Global Settings Section */}
         <Card className="bg-space-light border-gray-700">
           <CardHeader>
@@ -242,7 +243,8 @@ export default function AdminPage() {
           onClose={() => {}} 
           embedded={true}
         />
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
