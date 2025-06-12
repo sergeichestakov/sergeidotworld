@@ -194,9 +194,9 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <div className="p-6">
-        {/* Settings Section */}
-        <Card className="mb-6 bg-space-light border-gray-700">
+      <div className="p-6 space-y-6">
+        {/* Global Settings Section */}
+        <Card className="bg-space-light border-gray-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Settings className="mr-2" size={20} />
@@ -236,10 +236,11 @@ export default function AdminPage() {
           </CardContent>
         </Card>
 
-        {/* Location Management */}
+        {/* Location Management Section */}
         <AdminDashboard 
           isOpen={true} 
-          onClose={() => window.location.href = '/'} 
+          onClose={() => {}} 
+          embedded={true}
         />
       </div>
     </div>

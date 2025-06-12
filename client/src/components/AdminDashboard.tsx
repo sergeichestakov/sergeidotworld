@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { insertLocationSchema, type Location, type InsertLocation } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
@@ -18,12 +19,13 @@ import LocationAutocomplete from "./LocationAutocomplete";
 interface AdminDashboardProps {
   isOpen: boolean;
   onClose: () => void;
+  embedded?: boolean;
 }
 
 const currentLocationSchema = insertLocationSchema.omit({ type: true });
 const addLocationSchema = insertLocationSchema;
 
-export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
+export default function AdminDashboard({ isOpen, onClose, embedded = false }: AdminDashboardProps) {
   const [showAddLocation, setShowAddLocation] = useState(false);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const { toast } = useToast();
@@ -209,24 +211,22 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
     }
   }, [currentLocation]);
 
-  return (
-    <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-space-medium border-gray-600">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">Location Management</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-6">
-            {/* Update Current Location */}
-            <div className="space-light rounded-xl p-4 border border-gray-700">
-              <h3 className="font-semibold mb-4 flex items-center text-white">
-                <MapPin className="text-red-500 mr-2" size={20} />
-                Update Current Location
-              </h3>
-              
-              <Form {...currentLocationForm}>
-                <form onSubmit={currentLocationForm.handleSubmit(onUpdateCurrentLocation)} className="space-y-4">
+  const content = (
+    <div className="space-y-6">
+      {/* Update Current Location */}
+      <Card className="bg-space-light border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center">
+            <MapPin className="text-red-500 mr-2" size={20} />
+            Update Current Location
+          </CardTitle>
+          <CardDescription className="text-gray-400">
+            Set your current location on the globe
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...currentLocationForm}>
+            <form onSubmit={currentLocationForm.handleSubmit(onUpdateCurrentLocation)} className="space-y-4">
                   <div className="space-y-4">
                     <div>
                       <Label className="text-gray-300">Search Location</Label>
