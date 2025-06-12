@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { X, MapPin, Plus, Edit2, Trash2, Plane, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -197,7 +197,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
   };
 
   // Update form when current location changes
-  useState(() => {
+  useEffect(() => {
     if (currentLocation) {
       currentLocationForm.reset({
         name: currentLocation.name,
