@@ -271,19 +271,30 @@ export default function AdminPage() {
               </div>
 
               <div className="border-t border-gray-600 pt-4">
-                <Label className="text-white text-base font-medium">
-                  Flight Data Upload
-                </Label>
-                <p className="text-gray-400 text-sm mb-3">
-                  Upload a CSV file with flight data to update routes and visited destinations
-                </p>
-                <div className="relative">
-                  <Input
-                    type="file"
-                    accept=".csv"
-                    className="bg-gray-800 border-gray-600 text-white file:bg-gray-700 file:text-white file:border-0 file:mr-4 file:py-0 file:px-4 file:rounded file:cursor-pointer hover:file:bg-gray-600 h-12 flex items-center file:h-full"
-                    onChange={handleFileUpload}
-                  />
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <Label className="text-white text-base font-medium">
+                      Flight Data Upload
+                    </Label>
+                    <p className="text-gray-400 text-sm">
+                      Upload a CSV file with flight data to update routes and visited destinations
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="csvFileInput"
+                    />
+                    <label
+                      htmlFor="csvFileInput"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded cursor-pointer transition-colors"
+                    >
+                      Upload CSV
+                    </label>
+                  </div>
                 </div>
                 {uploadStatus && (
                   <p className={`text-sm mt-2 ${uploadStatus.includes('Error') ? 'text-red-400' : 'text-green-400'}`}>

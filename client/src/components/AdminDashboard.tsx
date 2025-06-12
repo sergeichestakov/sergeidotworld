@@ -62,6 +62,18 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
     },
   });
 
+  const editLocationForm = useForm<z.infer<typeof addLocationSchema>>({
+    resolver: zodResolver(addLocationSchema),
+    defaultValues: {
+      name: "",
+      latitude: 0,
+      longitude: 0,
+      type: "visited",
+      visitDate: new Date().toISOString().split('T')[0],
+      notes: "",
+    },
+  });
+
   const updateCurrentLocationMutation = useMutation({
     mutationFn: async (data: z.infer<typeof currentLocationSchema>) => {
       const response = await apiRequest("PUT", "/api/locations/current", data);
@@ -90,6 +102,23 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
     },
     onError: () => {
       toast({ title: "Failed to add location", variant: "destructive" });
+    },
+  });
+
+  const editLocationMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof addLocationSchema>) => {
+      if (!editingLocation) throw new Error("No location selected for editing");
+      const response = await apiRequest("PUT", `/api/locations/${editingLocation.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Location updated successfully!" });
+      queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
+      editLocationForm.reset();
+      setEditingLocation(null);
+    },
+    onError: () => {
+      toast({ title: "Failed to update location", variant: "destructive" });
     },
   });
 
@@ -127,6 +156,10 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
 
   const onAddLocation = (data: z.infer<typeof addLocationSchema>) => {
     addLocationMutation.mutate(data);
+  };
+
+  const onEditLocation = (data: z.infer<typeof addLocationSchema>) => {
+    editLocationMutation.mutate(data);
   };
 
   const onDeleteLocation = (id: number) => {
@@ -286,16 +319,20 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-space-medium border-gray-600">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">Location Management</DialogTitle>
-          </DialogHeader>
-          {content}
-        </DialogContent>
-      </Dialog>
+      {!embedded && (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-space-medium border-gray-600">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-white">Location Management</DialogTitle>
+            </DialogHeader>
+            {content}
+          </DialogContent>
+        </Dialog>
+      )}
+      
+      {embedded && content}
 
-      {/* Add Location Dialog */}
+      {/* Add Location Dialog - Always render regardless of embedded mode */}
       <Dialog open={showAddLocation} onOpenChange={setShowAddLocation}>
         <DialogContent className="bg-space-medium border-gray-600">
           <DialogHeader>
@@ -364,6 +401,80 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
               </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Location Dialog */}
+      <Dialog open={!!editingLocation} onOpenChange={() => setEditingLocation(null)}>
+        <DialogContent className="bg-space-medium border-gray-600">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">Edit Location</DialogTitle>
+          </DialogHeader>
+          
+          {editingLocation && (
+            <Form {...editLocationForm}>
+              <form onSubmit={editLocationForm.handleSubmit(onEditLocation)} className="space-y-4">
+                <div>
+                  <Label className="text-gray-300">Search Location</Label>
+                  <LocationAutocomplete
+                    value={editLocationForm.watch("name")}
+                    onChange={(location) => {
+                      editLocationForm.setValue("name", location.name);
+                      editLocationForm.setValue("latitude", location.latitude);
+                      editLocationForm.setValue("longitude", location.longitude);
+                    }}
+                    placeholder="Search for a location..."
+                  />
+                </div>
+                
+                <FormField
+                  control={editLocationForm.control}
+                  name="visitDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Visit Date</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="date" className="bg-gray-800 border-gray-600 text-white" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={editLocationForm.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Notes (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} value={field.value || ""} placeholder="Add any memorable details..." className="bg-gray-800 border-gray-600 text-white placeholder-gray-400" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="flex justify-end space-x-3 pt-4">
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    onClick={() => setEditingLocation(null)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="bg-blue-500 hover:bg-blue-600"
+                    disabled={editLocationMutation.isPending}
+                  >
+                    {editLocationMutation.isPending ? "Updating..." : "Update Location"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          )}
         </DialogContent>
       </Dialog>
     </>
