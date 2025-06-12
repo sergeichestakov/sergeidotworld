@@ -56,20 +56,21 @@ export default function GlobePage() {
   return (
     <div className="min-h-screen bg-space-dark text-white overflow-hidden font-sans">
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-30 p-6">
+      <header className="absolute top-0 left-0 right-0 z-30 p-4 md:p-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">🌍</span>
-            <h1 className="text-2xl font-bold">sergei.world</h1>
+          <div className="flex items-center space-x-2 md:space-x-3">
+            <span className="text-2xl md:text-3xl">🌍</span>
+            <h1 className="text-lg md:text-2xl font-bold">sergei.world</h1>
           </div>
           
           <Button
             onClick={() => window.location.href = '/admin'}
             variant="outline"
-            className="bg-space-light hover:bg-gray-700 transition-colors border-gray-600 text-white"
+            size="sm"
+            className="bg-space-light hover:bg-gray-700 transition-colors border-gray-600 text-white md:text-base text-sm"
           >
-            <Settings className="mr-2 h-4 w-4" />
-            Admin
+            <Settings className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Admin</span>
           </Button>
         </div>
       </header>
@@ -83,10 +84,11 @@ export default function GlobePage() {
           showFlights={showFlights}
         />
         
-        {/* Globe Controls */}
-        <div className="absolute bottom-6 right-6 z-20">
-          <div className="bg-space-light/80 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
-            <div className="flex flex-col space-y-3">
+        {/* Globe Controls - Mobile & Desktop */}
+        <div className="absolute bottom-4 md:bottom-6 right-4 md:right-6 z-20">
+          <div className="bg-space-light/80 backdrop-blur-sm rounded-xl p-3 md:p-4 border border-gray-700/50">
+            {/* Desktop Layout (vertical) */}
+            <div className="hidden md:flex flex-col space-y-3">
               <button 
                 className="control-btn" 
                 title="Zoom In"
@@ -137,11 +139,41 @@ export default function GlobePage() {
                 </Label>
               </div>
             </div>
+            
+            {/* Mobile Layout (horizontal, minimal) */}
+            <div className="flex md:hidden items-center space-x-2">
+              <button 
+                className="control-btn p-2" 
+                title="Zoom In"
+                onClick={() => globeRef.current?.zoomIn()}
+              >
+                <Plus size={14} />
+              </button>
+              <button 
+                className="control-btn p-2" 
+                title="Zoom Out"
+                onClick={() => globeRef.current?.zoomOut()}
+              >
+                <Minus size={14} />
+              </button>
+              <div className="border-l border-gray-600 h-6"></div>
+              <button 
+                className="control-btn p-2" 
+                title="Focus on Current Location"
+                onClick={() => {
+                  if (currentLocation) {
+                    globeRef.current?.focusOnLocation(currentLocation.latitude, currentLocation.longitude);
+                  }
+                }}
+              >
+                <Crosshair size={14} className="text-green-500" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Location Legend */}
-        <div className="absolute top-20 left-6 z-20">
+        {/* Location Legend - Hidden on Mobile */}
+        <div className="absolute top-20 left-4 md:left-6 z-20 hidden md:block">
           <div className="bg-space-light/80 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 max-w-sm">
             <h3 className="font-semibold text-lg mb-3">Location Types</h3>
             <div className="space-y-2">
@@ -178,9 +210,25 @@ export default function GlobePage() {
           </div>
         </div>
 
-        {/* Current Location Info */}
+        {/* Mobile Stats Bar */}
+        <div className="absolute bottom-4 left-4 z-20 md:hidden">
+          <div className="bg-space-light/80 backdrop-blur-sm rounded-xl px-3 py-2 border border-gray-700/50">
+            <div className="flex items-center space-x-4 text-xs text-gray-300">
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                <span>{stats.totalVisits}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <span>🌍</span>
+                <span>{stats.countries}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Current Location Info - Desktop Only */}
         {currentLocation && (
-          <div className="absolute bottom-6 left-6 z-20">
+          <div className="absolute bottom-6 left-6 z-20 hidden md:block">
             <div className="bg-space-light/80 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 min-w-72">
               <div className="flex items-center space-x-3 mb-2">
                 <div className="w-4 h-4 bg-location-current rounded-full animate-pulse-slow"></div>
