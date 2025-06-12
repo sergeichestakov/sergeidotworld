@@ -280,7 +280,7 @@ export default function AdminPage() {
                 <Input
                   type="file"
                   accept=".csv"
-                  className="bg-gray-800 border-gray-600 text-white file:bg-gray-700 file:text-white file:border-0 file:mr-4 file:py-2 file:px-4 file:rounded"
+                  className="bg-gray-800 border-gray-600 text-white file:bg-gray-700 file:text-white file:border-0 file:mr-4 file:py-2 file:px-4 file:rounded file:cursor-pointer hover:file:bg-gray-600 h-12"
                   onChange={handleFileUpload}
                 />
                 {uploadStatus && (
