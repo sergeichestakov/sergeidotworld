@@ -22,6 +22,19 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
   useEffect(() => {
     if (!mountRef.current) return;
 
+    // Calculate sun position for day/night cycle
+    const getSunPosition = () => {
+      const now = new Date();
+      const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+      const declination = 23.45 * Math.sin((360 * (284 + dayOfYear) / 365) * Math.PI / 180);
+      
+      // Solar noon longitude (changes throughout the day)
+      const minutesFromMidnight = now.getUTCHours() * 60 + now.getUTCMinutes();
+      const longitude = (minutesFromMidnight - 720) * 0.25; // 15 degrees per hour
+      
+      return { lat: declination, lng: longitude };
+    };
+
     // Initialize Globe.gl
     const globe = new Globe(mountRef.current)
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
@@ -35,6 +48,59 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
       .atmosphereAltitude(0.1)
       .enablePointerInteraction(true)
       .pointOfView({ lat: 0, lng: 0, altitude: 2.5 });
+
+    // Set up day/night cycle using polygons
+    const updateDayNight = () => {
+      const sunPos = getSunPosition();
+      
+      // Create the terminator line (day/night boundary)
+      const terminatorPolygon = [];
+      for (let i = 0; i <= 360; i += 5) {
+        const lng = i - 180;
+        // Calculate latitude where sun angle is 90 degrees (terminator line)
+        const lat = Math.atan(-Math.cos((lng - sunPos.lng) * Math.PI / 180) / Math.tan(sunPos.lat * Math.PI / 180)) * 180 / Math.PI;
+        
+        if (!isNaN(lat) && lat >= -90 && lat <= 90) {
+          terminatorPolygon.push([lng, lat]);
+        }
+      }
+      
+      // Create night side polygon
+      const nightPolygon = [...terminatorPolygon];
+      
+      // Complete the polygon to cover the night side
+      if (sunPos.lat >= 0) {
+        // Sun in northern hemisphere - night covers south
+        nightPolygon.push([180, -90], [-180, -90]);
+      } else {
+        // Sun in southern hemisphere - night covers north  
+        nightPolygon.push([180, 90], [-180, 90]);
+      }
+      
+      const nightData = [{
+        geometry: {
+          type: 'Polygon',
+          coordinates: [nightPolygon]
+        },
+        properties: {
+          name: 'night'
+        }
+      }];
+      
+      globe
+        .polygonsData(nightData)
+        .polygonGeoJsonGeometry('geometry')
+        .polygonCapColor(() => 'rgba(0, 0, 0, 0.4)')
+        .polygonSideColor(() => 'rgba(0, 0, 0, 0.2)')
+        .polygonStrokeColor(() => 'rgba(0, 0, 0, 0)')
+        .polygonAltitude(0.005);
+    };
+
+    // Initial day/night setup
+    updateDayNight();
+    
+    // Update every 5 minutes
+    const dayNightInterval = setInterval(updateDayNight, 5 * 60 * 1000);
 
     // Configure controls for auto-rotation
     const controls = globe.controls();
@@ -58,6 +124,7 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      clearInterval(dayNightInterval);
       if (globeRef.current) {
         globeRef.current._destructor();
       }
