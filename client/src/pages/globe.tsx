@@ -168,6 +168,18 @@ export default function GlobePage() {
               >
                 <Crosshair size={14} className="text-green-500" />
               </button>
+              <div className="border-l border-gray-600 h-6"></div>
+              <div className="flex items-center space-x-1">
+                <Switch
+                  id="flight-toggle-mobile"
+                  checked={showFlights}
+                  onCheckedChange={setShowFlights}
+                  className="data-[state=checked]:bg-orange-500 scale-75"
+                />
+                <Label htmlFor="flight-toggle-mobile" className="text-xs text-gray-300 cursor-pointer">
+                  <Plane size={12} />
+                </Label>
+              </div>
             </div>
           </div>
         </div>
