@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { insertLocationSchema, type Location, type InsertLocation } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
+import LocationAutocomplete from "./LocationAutocomplete";
 
 interface AdminDashboardProps {
   isOpen: boolean;
@@ -226,20 +227,19 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
               
               <Form {...currentLocationForm}>
                 <form onSubmit={currentLocationForm.handleSubmit(onUpdateCurrentLocation)} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={currentLocationForm.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-300">Location Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="San Francisco, CA" className="bg-space-dark border-gray-600 text-white" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-gray-300">Search Location</Label>
+                      <LocationAutocomplete
+                        value={currentLocationForm.watch("name")}
+                        onChange={(location) => {
+                          currentLocationForm.setValue("name", location.name);
+                          currentLocationForm.setValue("latitude", location.latitude);
+                          currentLocationForm.setValue("longitude", location.longitude);
+                        }}
+                        placeholder="Search for your current location..."
+                      />
+                    </div>
                     
                     <FormField
                       control={currentLocationForm.control}
@@ -249,34 +249,6 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                           <FormLabel className="text-gray-300">Visit Date</FormLabel>
                           <FormControl>
                             <Input {...field} value={field.value || ""} type="month" className="bg-space-dark border-gray-600 text-white" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={currentLocationForm.control}
-                      name="latitude"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-300">Latitude</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="number" step="any" onChange={e => field.onChange(parseFloat(e.target.value))} className="bg-space-dark border-gray-600 text-white" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={currentLocationForm.control}
-                      name="longitude"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-300">Longitude</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="number" step="any" onChange={e => field.onChange(parseFloat(e.target.value))} className="bg-space-dark border-gray-600 text-white" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -398,47 +370,16 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
 
           <Form {...addLocationForm}>
             <form onSubmit={addLocationForm.handleSubmit(onAddLocation)} className="space-y-4">
-              <FormField
-                control={addLocationForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-300">Location Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Paris, France" className="bg-space-dark border-gray-600 text-white" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={addLocationForm.control}
-                  name="latitude"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-300">Latitude</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="number" step="any" onChange={e => field.onChange(parseFloat(e.target.value))} className="bg-space-dark border-gray-600 text-white" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={addLocationForm.control}
-                  name="longitude"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-300">Longitude</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="number" step="any" onChange={e => field.onChange(parseFloat(e.target.value))} className="bg-space-dark border-gray-600 text-white" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label className="text-gray-300">Search Location</Label>
+                <LocationAutocomplete
+                  value={addLocationForm.watch("name")}
+                  onChange={(location) => {
+                    addLocationForm.setValue("name", location.name);
+                    addLocationForm.setValue("latitude", location.latitude);
+                    addLocationForm.setValue("longitude", location.longitude);
+                  }}
+                  placeholder="Search for a location to add..."
                 />
               </div>
               

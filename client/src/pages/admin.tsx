@@ -89,6 +89,7 @@ export default function AdminPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-space-dark border-gray-600 text-white"
                   placeholder="Enter admin password"
+                  autoComplete="current-password"
                   required
                 />
               </div>
@@ -188,7 +189,7 @@ export default function AdminPage() {
         {/* Location Management */}
         <AdminDashboard 
           isOpen={true} 
-          onClose={() => {}} 
+          onClose={() => window.location.href = '/'} 
         />
       </div>
     </div>
