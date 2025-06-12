@@ -175,13 +175,22 @@ export default function AdminPage() {
             </div>
           </div>
           
-          <Button
-            onClick={() => window.location.href = '/'}
-            variant="outline"
-            className="bg-space-light hover:bg-gray-700 transition-colors border-gray-600 text-white"
-          >
-            Back to Globe
-          </Button>
+          <div className="flex space-x-3">
+            <Button
+              onClick={logout}
+              variant="outline"
+              className="bg-space-light hover:bg-gray-700 transition-colors border-gray-600 text-white"
+            >
+              Logout
+            </Button>
+            <Button
+              onClick={() => window.location.href = '/'}
+              variant="outline"
+              className="bg-space-light hover:bg-gray-700 transition-colors border-gray-600 text-white"
+            >
+              Back to Globe
+            </Button>
+          </div>
         </div>
       </header>
 
