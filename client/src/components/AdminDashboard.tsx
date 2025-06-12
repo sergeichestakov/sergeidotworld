@@ -248,7 +248,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                         <FormItem>
                           <FormLabel className="text-gray-300">Visit Date</FormLabel>
                           <FormControl>
-                            <Input {...field} value={field.value || ""} type="month" className="bg-space-dark border-gray-600 text-white" />
+                            <Input {...field} value={field.value || ""} type="month" className="bg-gray-800 border-gray-600 text-white placeholder-gray-400" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -263,7 +263,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                       <FormItem>
                         <FormLabel className="text-gray-300">Notes</FormLabel>
                         <FormControl>
-                          <Textarea {...field} value={field.value || ""} placeholder="Optional notes..." className="bg-space-dark border-gray-600 text-white" />
+                          <Textarea {...field} value={field.value || ""} placeholder="Optional notes..." className="bg-gray-800 border-gray-600 text-white placeholder-gray-400" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -390,7 +390,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                   <FormItem>
                     <FormLabel className="text-gray-300">Visit Date</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} type="month" className="bg-space-dark border-gray-600 text-white" />
+                      <Input {...field} value={field.value || ""} type="month" className="bg-gray-800 border-gray-600 text-white placeholder-gray-400" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -404,7 +404,7 @@ export default function AdminDashboard({ isOpen, onClose }: AdminDashboardProps)
                   <FormItem>
                     <FormLabel className="text-gray-300">Notes (Optional)</FormLabel>
                     <FormControl>
-                      <Textarea {...field} value={field.value || ""} placeholder="Add any memorable details..." className="bg-space-dark border-gray-600 text-white" />
+                      <Textarea {...field} value={field.value || ""} placeholder="Add any memorable details..." className="bg-gray-800 border-gray-600 text-white placeholder-gray-400" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

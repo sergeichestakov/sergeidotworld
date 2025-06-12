@@ -109,7 +109,7 @@ export default function LocationAutocomplete({
           value={query}
           onChange={handleInputChange}
           placeholder={placeholder}
-          className="bg-space-dark border-gray-600 text-white pl-10"
+          className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 pl-10 focus:bg-gray-700"
           onFocus={() => {
             if (suggestions.length > 0) {
               setShowSuggestions(true);
@@ -126,16 +126,16 @@ export default function LocationAutocomplete({
       </div>
 
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-space-light border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
           {suggestions.map((suggestion) => (
             <button
               key={suggestion.place_id}
               onClick={() => handleSuggestionClick(suggestion)}
-              className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-start space-x-2 border-b border-gray-600 last:border-b-0"
+              className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-start space-x-2 border-b border-gray-700 last:border-b-0"
             >
               <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">
+                <div className="text-sm font-medium truncate text-white">
                   {formatSuggestionText(suggestion.display_name)}
                 </div>
                 <div className="text-xs text-gray-400 truncate">

@@ -87,7 +87,7 @@ export default function AdminPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-space-dark border-gray-600 text-white"
+                  className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                   placeholder="Enter admin password"
                   autoComplete="current-password"
                   required
@@ -167,7 +167,7 @@ export default function AdminPage() {
                   type="number"
                   min="0"
                   defaultValue={countriesVisitedSetting?.value || "37"}
-                  className="bg-space-dark border-gray-600 text-white w-32"
+                  className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 w-32"
                   onBlur={(e) => {
                     const value = e.target.value;
                     if (value !== countriesVisitedSetting?.value) {
