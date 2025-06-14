@@ -153,12 +153,25 @@ input[type="file"] {
 }
 
 .control-btn {
-  @apply w-10 h-10 transition-colors rounded-lg border flex items-center justify-center text-sm;
-  background-color: var(--space-dark);
+  @apply min-w-8 min-h-8 w-10 h-10 transition-colors rounded-lg border flex items-center justify-center text-sm text-white;
+  background-color: rgba(31, 41, 55, 0.9);
   border-color: rgb(75, 85, 99);
 }
 
 .control-btn:hover {
   background-color: rgb(75, 85, 99);
   color: white;
+}
+
+.control-btn:active {
+  background-color: rgb(55, 65, 81);
+  transform: scale(0.95);
+}
+
+/* Mobile specific improvements */
+@media (max-width: 768px) {
+  .control-btn {
+    @apply min-w-10 min-h-10 w-12 h-12 text-base;
+    touch-action: manipulation;
+  }
 }

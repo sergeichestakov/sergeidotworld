@@ -85,8 +85,8 @@ export default function GlobePage() {
         />
         
         {/* Globe Controls - Mobile & Desktop */}
-        <div className="absolute bottom-4 md:bottom-6 right-4 md:right-6 z-20">
-          <div className="bg-space-light/80 backdrop-blur-sm rounded-xl p-3 md:p-4 border border-gray-700/50">
+        <div className="absolute bottom-4 md:bottom-6 right-4 md:right-6 z-30 pointer-events-auto">
+          <div className="bg-gray-800/95 backdrop-blur-sm rounded-xl p-2 md:p-4 border border-gray-600 shadow-xl">
             {/* Desktop Layout (vertical) */}
             <div className="hidden md:flex flex-col space-y-3">
               <button 
@@ -141,24 +141,24 @@ export default function GlobePage() {
             </div>
             
             {/* Mobile Layout (horizontal, minimal) */}
-            <div className="flex md:hidden items-center space-x-2">
+            <div className="flex md:hidden items-center justify-center space-x-3">
               <button 
-                className="control-btn p-2" 
+                className="control-btn" 
                 title="Zoom In"
                 onClick={() => globeRef.current?.zoomIn()}
               >
-                <Plus size={14} />
+                <Plus size={16} />
               </button>
               <button 
-                className="control-btn p-2" 
+                className="control-btn" 
                 title="Zoom Out"
                 onClick={() => globeRef.current?.zoomOut()}
               >
-                <Minus size={14} />
+                <Minus size={16} />
               </button>
-              <div className="border-l border-gray-600 h-6"></div>
+              <div className="border-l border-gray-500 h-8"></div>
               <button 
-                className="control-btn p-2" 
+                className="control-btn" 
                 title="Focus on Current Location"
                 onClick={() => {
                   if (currentLocation) {
@@ -166,18 +166,18 @@ export default function GlobePage() {
                   }
                 }}
               >
-                <Crosshair size={14} className="text-green-500" />
+                <Crosshair size={16} className="text-green-400" />
               </button>
-              <div className="border-l border-gray-600 h-6"></div>
-              <div className="flex items-center space-x-1">
+              <div className="border-l border-gray-500 h-8"></div>
+              <div className="flex items-center justify-center">
                 <Switch
                   id="flight-toggle-mobile"
                   checked={showFlights}
                   onCheckedChange={setShowFlights}
-                  className="data-[state=checked]:bg-orange-500 scale-75"
+                  className="data-[state=checked]:bg-orange-500"
                 />
-                <Label htmlFor="flight-toggle-mobile" className="text-xs text-gray-300 cursor-pointer">
-                  <Plane size={12} />
+                <Label htmlFor="flight-toggle-mobile" className="ml-2 text-sm text-gray-300 cursor-pointer">
+                  <Plane size={16} />
                 </Label>
               </div>
             </div>
