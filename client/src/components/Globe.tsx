@@ -79,7 +79,7 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
     // Set points on globe
     globeRef.current
       .pointsData(pointsData)
-      .pointAltitude(0.01)
+      .pointAltitude(0.05)
       .pointRadius('size')
       .pointColor('color')
       .pointsMerge(false)
@@ -195,13 +195,13 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
   const getMarkerSize = (type: string): number => {
     switch (type) {
       case 'current':
-        return 0.6;
+        return 1.2;
       case 'home':
-        return 0.5;
+        return 1.0;
       case 'visited':
-        return 0.3;
+        return 0.8;
       default:
-        return 0.3;
+        return 0.6;
     }
   };
 

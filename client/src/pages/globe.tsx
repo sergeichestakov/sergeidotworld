@@ -140,9 +140,9 @@ export default function GlobePage() {
               </div>
             </div>
             
-            {/* Mobile Layout (always visible on small screens) */}
+            {/* Mobile Layout (vertical) */}
             <div className="block md:hidden">
-              <div className="flex items-center justify-center space-x-2">
+              <div className="flex flex-col space-y-3">
                 <button 
                   className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
                   title="Zoom In"
@@ -157,6 +157,18 @@ export default function GlobePage() {
                 >
                   <Minus size={18} />
                 </button>
+                <div className="border-t border-gray-500 my-1"></div>
+                <button 
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
+                  title="Focus on Home Base"
+                  onClick={() => {
+                    if (homeLocation) {
+                      globeRef.current?.focusOnLocation(homeLocation.latitude, homeLocation.longitude);
+                    }
+                  }}
+                >
+                  <Home size={18} />
+                </button>
                 <button 
                   className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
                   title="Focus on Current Location"
@@ -168,6 +180,7 @@ export default function GlobePage() {
                 >
                   <Crosshair size={18} className="text-green-400" />
                 </button>
+                <div className="border-t border-gray-500 my-1"></div>
                 <button 
                   className={`p-3 rounded-lg border border-gray-500 transition-colors ${showFlights ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-700 hover:bg-gray-600'}`}
                   title="Toggle Flights"
@@ -180,9 +193,9 @@ export default function GlobePage() {
           </div>
         </div>
 
-        {/* Location Legend - Hidden on Mobile */}
-        <div className="absolute top-20 left-4 md:left-6 z-20 hidden md:block">
-          <div className="bg-space-light/80 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 max-w-sm">
+        {/* Location Legend - Always visible */}
+        <div className="absolute top-20 left-4 md:left-6 z-20">
+          <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-3 md:p-4 border border-gray-600 shadow-xl max-w-xs md:max-w-sm">
             <h3 className="font-semibold text-lg mb-3">Location Types</h3>
             <div className="space-y-2">
               <div className="flex items-center space-x-3">
