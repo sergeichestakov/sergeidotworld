@@ -110,7 +110,7 @@ export const airportData: Record<string, Airport> = {
   'ACC': { code: 'ACC', name: 'Kotoka International Airport', city: 'Accra', country: 'Ghana', latitude: 5.6052, longitude: -0.1719 },
   'ADD': { code: 'ADD', name: 'Addis Ababa Bole International Airport', city: 'Addis Ababa', country: 'Ethiopia', latitude: 8.9806, longitude: 38.7992 },
   'NBO': { code: 'NBO', name: 'Jomo Kenyatta International Airport', city: 'Nairobi', country: 'Kenya', latitude: -1.3192, longitude: 36.9278 },
-  'DED': { code: 'DED', name: 'Debre Damo Airport', city: 'Debre Damo', country: 'Ethiopia', latitude: 14.1000, longitude: 39.0333 },
+  'DED': { code: 'DED', name: 'Jolly Grant Airport', city: 'Dehradun', country: 'India', latitude: 30.1897, longitude: 78.1803 },
 
   // Australian/Oceania Airports
   'SYD': { code: 'SYD', name: 'Sydney Kingsford Smith Airport', city: 'Sydney', country: 'Australia', latitude: -33.9399, longitude: 151.1753 },
@@ -135,7 +135,7 @@ export const airportData: Record<string, Airport> = {
   'MEX': { code: 'MEX', name: 'Mexico City International Airport', city: 'Mexico City', country: 'Mexico', latitude: 19.4363, longitude: -99.0721 },
   'CUN': { code: 'CUN', name: 'Cancún International Airport', city: 'Cancún', country: 'Mexico', latitude: 20.5218, longitude: -86.9264 },
   'PVR': { code: 'PVR', name: 'Puerto Vallarta International Airport', city: 'Puerto Vallarta', country: 'Mexico', latitude: 20.6801, longitude: -105.2544 },
-  'GOX': { code: 'GOX', name: 'Goma International Airport', city: 'Goma', country: 'Democratic Republic of Congo', latitude: -1.6708, longitude: 29.2383 }
+  'GOX': { code: 'GOX', name: 'Manohar International Airport', city: 'Goa', country: 'India', latitude: 15.3808, longitude: 73.8314 }
 };
 
 export function getAirportByCode(code: string): Airport | undefined {
