@@ -67,6 +67,8 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
   useEffect(() => {
     if (!globeRef.current || !locations.length) return;
 
+    console.log(`Globe: Processing ${locations.length} locations`);
+    
     // Prepare points data
     const pointsData = locations.map(location => ({
       lat: location.latitude,
@@ -75,6 +77,9 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
       color: getMarkerColor(location.type),
       location: location
     }));
+
+    console.log(`Globe: Created ${pointsData.length} points`);
+    console.log('Sample points:', pointsData.slice(0, 5));
 
     // Set points on globe
     globeRef.current
