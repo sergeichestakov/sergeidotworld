@@ -3,6 +3,7 @@ import session from "express-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { importFlightDataOnStartup } from "./flight-import";
+import { initializeDatabase } from "./init-db";
 import crypto from "crypto";
 
 const app = express();
@@ -55,6 +56,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize database with default data
+  await initializeDatabase();
+  
   const server = await registerRoutes(app);
 
   // Auto-import flight data on startup

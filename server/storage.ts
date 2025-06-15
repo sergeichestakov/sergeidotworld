@@ -1,4 +1,6 @@
 import { locations, settings, type Location, type InsertLocation, type Setting, type InsertSetting } from "@shared/schema";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   getLocations(): Promise<Location[]>;
@@ -224,4 +226,101 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getLocations(): Promise<Location[]> {
+    return await db.select().from(locations);
+  }
+
+  async getLocationById(id: number): Promise<Location | undefined> {
+    const [location] = await db.select().from(locations).where(eq(locations.id, id));
+    return location || undefined;
+  }
+
+  async getCurrentLocation(): Promise<Location | undefined> {
+    const [location] = await db.select().from(locations).where(eq(locations.type, 'current'));
+    return location || undefined;
+  }
+
+  async getHomeLocation(): Promise<Location | undefined> {
+    const [location] = await db.select().from(locations).where(eq(locations.type, 'home'));
+    return location || undefined;
+  }
+
+  async getVisitedLocations(): Promise<Location[]> {
+    return await db.select().from(locations).where(eq(locations.type, 'visited'));
+  }
+
+  async createLocation(insertLocation: InsertLocation): Promise<Location> {
+    const [location] = await db
+      .insert(locations)
+      .values(insertLocation)
+      .returning();
+    return location;
+  }
+
+  async updateLocation(id: number, updateData: Partial<InsertLocation>): Promise<Location | undefined> {
+    const [location] = await db
+      .update(locations)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(locations.id, id))
+      .returning();
+    return location || undefined;
+  }
+
+  async deleteLocation(id: number): Promise<boolean> {
+    const result = await db.delete(locations).where(eq(locations.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async updateCurrentLocation(locationData: Omit<InsertLocation, 'type'>): Promise<Location> {
+    // Check if current location exists
+    const currentLocation = await this.getCurrentLocation();
+    
+    if (currentLocation) {
+      // Update existing current location
+      const [updated] = await db
+        .update(locations)
+        .set({ ...locationData, updatedAt: new Date() })
+        .where(eq(locations.id, currentLocation.id))
+        .returning();
+      return updated;
+    } else {
+      // Create new current location
+      const [created] = await db
+        .insert(locations)
+        .values({ ...locationData, type: 'current' })
+        .returning();
+      return created;
+    }
+  }
+
+  async getSetting(key: string): Promise<Setting | undefined> {
+    const [setting] = await db.select().from(settings).where(eq(settings.key, key));
+    return setting || undefined;
+  }
+
+  async setSetting(key: string, value: string): Promise<Setting> {
+    const existingSetting = await this.getSetting(key);
+    
+    if (existingSetting) {
+      const [updated] = await db
+        .update(settings)
+        .set({ value, updatedAt: new Date() })
+        .where(eq(settings.key, key))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(settings)
+        .values({ key, value })
+        .returning();
+      return created;
+    }
+  }
+
+  async getSettings(): Promise<Setting[]> {
+    return await db.select().from(settings);
+  }
+}
+
+export const storage = new DatabaseStorage();
