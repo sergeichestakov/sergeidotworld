@@ -127,7 +127,28 @@ export const airportData: Record<string, Airport> = {
   'AEP': { code: 'AEP', name: 'Jorge Newbery Airfield', city: 'Buenos Aires', country: 'Argentina', latitude: -34.5592, longitude: -58.4156 },
   'EOH': { code: 'EOH', name: 'Olaya Herrera Airport', city: 'Medellín', country: 'Colombia', latitude: 6.2205, longitude: -75.5906 },
   'SYD': { code: 'SYD', name: 'Sydney Kingsford Smith Airport', city: 'Sydney', country: 'Australia', latitude: -33.9399, longitude: 151.1753 },
-  'MEL': { code: 'MEL', name: 'Melbourne Airport', city: 'Melbourne', country: 'Australia', latitude: -37.6690, longitude: 144.8410 }
+  'MEL': { code: 'MEL', name: 'Melbourne Airport', city: 'Melbourne', country: 'Australia', latitude: -37.6690, longitude: 144.8410 },
+  'IST': { code: 'IST', name: 'Istanbul Airport', city: 'Istanbul', country: 'Turkey', latitude: 41.2753, longitude: 28.7519 },
+  'MCO': { code: 'MCO', name: 'Orlando International Airport', city: 'Orlando', country: 'United States', latitude: 28.4294, longitude: -81.3089 },
+  'NCE': { code: 'NCE', name: 'Nice Côte d\'Azur Airport', city: 'Nice', country: 'France', latitude: 43.6584, longitude: 7.2159 },
+  'PKX': { code: 'PKX', name: 'Beijing Daxing International Airport', city: 'Beijing', country: 'China', latitude: 39.5098, longitude: 116.4105 },
+  'PNQ': { code: 'PNQ', name: 'Pune Airport', city: 'Pune', country: 'India', latitude: 18.5822, longitude: 73.9197 },
+  'POZ': { code: 'POZ', name: 'Poznań–Ławica Airport', city: 'Poznań', country: 'Poland', latitude: 52.4213, longitude: 16.8263 },
+  'PRG': { code: 'PRG', name: 'Václav Havel Airport Prague', city: 'Prague', country: 'Czech Republic', latitude: 50.1008, longitude: 14.2632 },
+  'PWM': { code: 'PWM', name: 'Portland International Jetport', city: 'Portland', country: 'United States', latitude: 43.6462, longitude: -70.3093 },
+  'RNO': { code: 'RNO', name: 'Reno-Tahoe International Airport', city: 'Reno', country: 'United States', latitude: 39.4991, longitude: -119.7681 },
+  'SAV': { code: 'SAV', name: 'Savannah/Hilton Head International Airport', city: 'Savannah', country: 'United States', latitude: 32.1276, longitude: -81.2021 },
+  'SBA': { code: 'SBA', name: 'Santa Barbara Airport', city: 'Santa Barbara', country: 'United States', latitude: 34.4262, longitude: -119.8403 },
+  'SDU': { code: 'SDU', name: 'Santos Dumont Airport', city: 'Rio de Janeiro', country: 'Brazil', latitude: -22.9105, longitude: -43.1631 },
+  'SHA': { code: 'SHA', name: 'Shanghai Hongqiao International Airport', city: 'Shanghai', country: 'China', latitude: 31.1979, longitude: 121.3364 },
+  'SZX': { code: 'SZX', name: 'Shenzhen Bao\'an International Airport', city: 'Shenzhen', country: 'China', latitude: 22.6393, longitude: 113.8108 },
+  'VKO': { code: 'VKO', name: 'Vnukovo International Airport', city: 'Moscow', country: 'Russia', latitude: 55.5914, longitude: 37.2615 },
+  'WAW': { code: 'WAW', name: 'Warsaw Chopin Airport', city: 'Warsaw', country: 'Poland', latitude: 52.1657, longitude: 20.9671 },
+  'KIX': { code: 'KIX', name: 'Kansai International Airport', city: 'Osaka', country: 'Japan', latitude: 34.4273, longitude: 135.2444 },
+  'KRK': { code: 'KRK', name: 'John Paul II International Airport Kraków–Balice', city: 'Kraków', country: 'Poland', latitude: 50.0777, longitude: 19.7848 },
+  'MIA': { code: 'MIA', name: 'Miami International Airport', city: 'Miami', country: 'United States', latitude: 25.7933, longitude: -80.2906 },
+  'SLC': { code: 'SLC', name: 'Salt Lake City International Airport', city: 'Salt Lake City', country: 'United States', latitude: 40.7884, longitude: -111.9778 },
+  'SNA': { code: 'SNA', name: 'John Wayne Airport', city: 'Orange County', country: 'United States', latitude: 33.6757, longitude: -117.8682 }
 };
 
 export function getAirportByCode(code: string): Airport | undefined {
