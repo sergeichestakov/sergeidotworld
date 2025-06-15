@@ -79,7 +79,7 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
     // Set points on globe
     globeRef.current
       .pointsData(pointsData)
-      .pointAltitude(0.05)
+      .pointAltitude(0.02)
       .pointRadius('size')
       .pointColor('color')
       .pointsMerge(false)

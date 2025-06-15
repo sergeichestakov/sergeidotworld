@@ -150,7 +150,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
   const updateLocationMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<InsertLocation> }) => {
       return await apiRequest(`/api/locations/${id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         body: JSON.stringify(data),
       });
     },
