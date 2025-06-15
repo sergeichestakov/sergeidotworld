@@ -125,7 +125,9 @@ export const airportData: Record<string, Airport> = {
   'MDE': { code: 'MDE', name: 'José María Córdova International Airport', city: 'Medellín', country: 'Colombia', latitude: 6.1644, longitude: -75.4231 },
   'PTY': { code: 'PTY', name: 'Tocumen International Airport', city: 'Panama City', country: 'Panama', latitude: 9.0714, longitude: -79.3835 },
   'AEP': { code: 'AEP', name: 'Jorge Newbery Airfield', city: 'Buenos Aires', country: 'Argentina', latitude: -34.5592, longitude: -58.4156 },
-  'EOH': { code: 'EOH', name: 'Olaya Herrera Airport', city: 'Medellín', country: 'Colombia', latitude: 6.2205, longitude: -75.5906 }
+  'EOH': { code: 'EOH', name: 'Olaya Herrera Airport', city: 'Medellín', country: 'Colombia', latitude: 6.2205, longitude: -75.5906 },
+  'SYD': { code: 'SYD', name: 'Sydney Kingsford Smith Airport', city: 'Sydney', country: 'Australia', latitude: -33.9399, longitude: 151.1753 },
+  'MEL': { code: 'MEL', name: 'Melbourne Airport', city: 'Melbourne', country: 'Australia', latitude: -37.6690, longitude: 144.8410 }
 };
 
 export function getAirportByCode(code: string): Airport | undefined {
