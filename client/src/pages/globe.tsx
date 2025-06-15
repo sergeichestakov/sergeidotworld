@@ -85,8 +85,8 @@ export default function GlobePage() {
         />
         
         {/* Globe Controls - Mobile & Desktop */}
-        <div className="absolute bottom-4 md:bottom-6 right-4 md:right-6 z-30 pointer-events-auto">
-          <div className="bg-gray-800/95 backdrop-blur-sm rounded-xl p-2 md:p-4 border border-gray-600 shadow-xl">
+        <div className="fixed bottom-4 right-4 z-50 pointer-events-auto">
+          <div className="bg-gray-800 rounded-xl p-3 border border-gray-600 shadow-xl">
             {/* Desktop Layout (vertical) */}
             <div className="hidden md:flex flex-col space-y-3">
               <button 
@@ -140,45 +140,41 @@ export default function GlobePage() {
               </div>
             </div>
             
-            {/* Mobile Layout (horizontal, minimal) */}
-            <div className="flex md:hidden items-center justify-center space-x-3">
-              <button 
-                className="control-btn" 
-                title="Zoom In"
-                onClick={() => globeRef.current?.zoomIn()}
-              >
-                <Plus size={16} />
-              </button>
-              <button 
-                className="control-btn" 
-                title="Zoom Out"
-                onClick={() => globeRef.current?.zoomOut()}
-              >
-                <Minus size={16} />
-              </button>
-              <div className="border-l border-gray-500 h-8"></div>
-              <button 
-                className="control-btn" 
-                title="Focus on Current Location"
-                onClick={() => {
-                  if (currentLocation) {
-                    globeRef.current?.focusOnLocation(currentLocation.latitude, currentLocation.longitude);
-                  }
-                }}
-              >
-                <Crosshair size={16} className="text-green-400" />
-              </button>
-              <div className="border-l border-gray-500 h-8"></div>
-              <div className="flex items-center justify-center">
-                <Switch
-                  id="flight-toggle-mobile"
-                  checked={showFlights}
-                  onCheckedChange={setShowFlights}
-                  className="data-[state=checked]:bg-orange-500"
-                />
-                <Label htmlFor="flight-toggle-mobile" className="ml-2 text-sm text-gray-300 cursor-pointer">
-                  <Plane size={16} />
-                </Label>
+            {/* Mobile Layout (always visible on small screens) */}
+            <div className="block md:hidden">
+              <div className="flex items-center justify-center space-x-2">
+                <button 
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
+                  title="Zoom In"
+                  onClick={() => globeRef.current?.zoomIn()}
+                >
+                  <Plus size={18} />
+                </button>
+                <button 
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
+                  title="Zoom Out"
+                  onClick={() => globeRef.current?.zoomOut()}
+                >
+                  <Minus size={18} />
+                </button>
+                <button 
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
+                  title="Focus on Current Location"
+                  onClick={() => {
+                    if (currentLocation) {
+                      globeRef.current?.focusOnLocation(currentLocation.latitude, currentLocation.longitude);
+                    }
+                  }}
+                >
+                  <Crosshair size={18} className="text-green-400" />
+                </button>
+                <button 
+                  className={`p-3 rounded-lg border border-gray-500 transition-colors ${showFlights ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-700 hover:bg-gray-600'}`}
+                  title="Toggle Flights"
+                  onClick={() => setShowFlights(!showFlights)}
+                >
+                  <Plane size={18} className={showFlights ? 'text-white' : 'text-gray-300'} />
+                </button>
               </div>
             </div>
           </div>
