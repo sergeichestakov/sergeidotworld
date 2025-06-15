@@ -106,10 +106,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
 
   const updateCurrentLocationMutation = useMutation({
     mutationFn: async (data: Omit<InsertLocation, 'type'>) => {
-      return await apiRequest('/api/locations/current', {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+      return await apiRequest('PUT', '/api/locations/current', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
@@ -127,10 +124,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
 
   const addLocationMutation = useMutation({
     mutationFn: async (data: InsertLocation) => {
-      return await apiRequest('/api/locations', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      return await apiRequest('POST', '/api/locations', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
@@ -149,10 +143,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
 
   const updateLocationMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<InsertLocation> }) => {
-      return await apiRequest(`/api/locations/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+      return await apiRequest('PUT', `/api/locations/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
@@ -170,9 +161,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
 
   const deleteLocationMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest(`/api/locations/${id}`, {
-        method: 'DELETE',
-      });
+      return await apiRequest('DELETE', `/api/locations/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
