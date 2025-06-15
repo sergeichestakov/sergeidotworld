@@ -29,6 +29,8 @@ export default function GlobePage() {
   const visitedLocations = locations.filter(loc => loc.type === 'visited');
   const homeLocation = locations.find(loc => loc.type === 'home');
 
+  console.log('Total locations:', locations.length, 'Visited locations:', visitedLocations.length);
+
   const countriesVisitedSetting = settings.find(s => s.key === 'countries_visited');
   const stats: LocationStats = {
     totalVisits: visitedLocations.length,
