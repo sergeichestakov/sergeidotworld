@@ -195,13 +195,13 @@ const Globe3D = forwardRef<GlobeRef, GlobeProps>(({ locations, onLocationClick, 
   const getMarkerSize = (type: string): number => {
     switch (type) {
       case 'current':
-        return 1.2;
+        return 0.5;
       case 'home':
-        return 1.0;
+        return 0.4;
       case 'visited':
-        return 0.8;
+        return 0.3;
       default:
-        return 0.6;
+        return 0.2;
     }
   };
 

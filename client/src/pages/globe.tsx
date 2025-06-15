@@ -193,9 +193,9 @@ export default function GlobePage() {
           </div>
         </div>
 
-        {/* Location Legend - Always visible */}
-        <div className="absolute top-20 left-4 md:left-6 z-20">
-          <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-3 md:p-4 border border-gray-600 shadow-xl max-w-xs md:max-w-sm">
+        {/* Location Legend - Desktop only */}
+        <div className="absolute top-20 left-4 md:left-6 z-20 hidden md:block">
+          <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-4 border border-gray-600 shadow-xl max-w-sm">
             <h3 className="font-semibold text-lg mb-3">Location Types</h3>
             <div className="space-y-2">
               <div className="flex items-center space-x-3">
