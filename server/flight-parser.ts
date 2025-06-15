@@ -59,6 +59,11 @@ export function parseFlightCSV(csvContent: string): FlightData[] {
     const fromAirport = getAirportByCode(flight.from);
     const toAirport = getAirportByCode(flight.to);
     
+    // Debug logging for IST flights
+    if (flight.from === 'IST' || flight.to === 'IST') {
+      console.log(`IST Flight: ${flight.from} -> ${flight.to}, fromAirport: ${fromAirport ? 'found' : 'missing'}, toAirport: ${toAirport ? 'found' : 'missing'}`);
+    }
+    
     if (fromAirport) {
       flight.fromAirport = fromAirport;
     }
@@ -70,6 +75,10 @@ export function parseFlightCSV(csvContent: string): FlightData[] {
     // Only add flights where we have both airport coordinates
     if (flight.fromAirport && flight.toAirport) {
       flights.push(flight);
+    } else {
+      // Debug missing airports
+      if (!fromAirport) console.log(`Missing airport data for: ${flight.from}`);
+      if (!toAirport) console.log(`Missing airport data for: ${flight.to}`);
     }
   }
   
