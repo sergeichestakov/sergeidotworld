@@ -73,7 +73,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
       type: "visited",
       latitude: 0,
       longitude: 0,
-      visitDate: null,
+      visitDate: undefined,
       notes: "",
     },
   });
