@@ -30,7 +30,6 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: locations = [] } = useQuery<Location[]>({
     queryKey: ["/api/locations"],
@@ -71,7 +70,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
     resolver: zodResolver(addLocationSchema),
     defaultValues: {
       name: "",
-      type: "visited" as const,
+      type: "visited",
       latitude: 0,
       longitude: 0,
       visitDate: null,
@@ -95,10 +94,10 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
     if (editingLocation) {
       editLocationForm.reset({
         name: editingLocation.name,
-        type: editingLocation.type,
+        type: editingLocation.type as any,
         latitude: editingLocation.latitude,
         longitude: editingLocation.longitude,
-        visitDate: editingLocation.visitDate,
+        visitDate: editingLocation.visitDate || undefined,
         notes: editingLocation.notes || "",
       });
     }
@@ -176,38 +175,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
     },
   });
 
-  const uploadFlightsMutation = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append('csvFile', file);
-      
-      const response = await fetch('/api/flights/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Upload failed');
-      }
-      
-      return response.json();
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/locations"] });
-      toast({ 
-        title: "Flight data uploaded successfully!", 
-        description: `Imported ${data.imported} destinations from ${data.total} flights` 
-      });
-    },
-    onError: (error: any) => {
-      toast({ 
-        title: "Error uploading flight data", 
-        description: error.message,
-        variant: "destructive"
-      });
-    },
-  });
+
 
   const onUpdateCurrentLocation = (data: Omit<InsertLocation, 'type'>) => {
     updateCurrentLocationMutation.mutate(data);
@@ -223,21 +191,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && file.type === 'text/csv') {
-      uploadFlightsMutation.mutate(file);
-    } else {
-      toast({ 
-        title: "Invalid file type", 
-        description: "Please select a CSV file",
-        variant: "destructive"
-      });
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
+
 
   const visitedLocations = locations.filter(loc => loc.type === 'visited');
   const wishlistLocations = locations.filter(loc => loc.type === 'wishlist');
