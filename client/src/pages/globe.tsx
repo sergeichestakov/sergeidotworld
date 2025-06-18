@@ -48,7 +48,7 @@ export default function GlobePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-space-dark flex items-center justify-center">
-        <div className="text-white">Loading globe...</div>
+        <div className="text-white">Loading Sergei's world...</div>
       </div>
     );
   }
