@@ -116,18 +116,6 @@ export default function GlobePage() {
               >
                 <Minus size={16} />
               </button>
-              <div className="border-t border-gray-600 my-2"></div>
-              <button 
-                className="control-btn" 
-                title="Focus on Home Base"
-                onClick={() => {
-                  if (homeLocation) {
-                    globeRef.current?.focusOnLocation(homeLocation.latitude, homeLocation.longitude);
-                  }
-                }}
-              >
-                <Home size={16} />
-              </button>
               <button 
                 className="control-btn" 
                 title="Focus on Current Location"
@@ -169,18 +157,6 @@ export default function GlobePage() {
                   onClick={() => globeRef.current?.zoomOut()}
                 >
                   <Minus size={18} />
-                </button>
-                <div className="border-t border-gray-500 my-1"></div>
-                <button 
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
-                  title="Focus on Home Base"
-                  onClick={() => {
-                    if (homeLocation) {
-                      globeRef.current?.focusOnLocation(homeLocation.latitude, homeLocation.longitude);
-                    }
-                  }}
-                >
-                  <Home size={18} />
                 </button>
                 <button 
                   className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
