@@ -101,7 +101,7 @@ export default function GlobePage() {
         <div className="fixed bottom-4 right-4 z-50 pointer-events-auto">
           <div className="bg-gray-800 rounded-xl p-3 border border-gray-600 shadow-xl">
             {/* Desktop Layout (vertical) */}
-            <div className="hidden md:flex flex-col space-y-3">
+            <div className="hidden md:flex flex-col items-center space-y-3">
               <button 
                 className="control-btn" 
                 title="Zoom In"
@@ -127,8 +127,8 @@ export default function GlobePage() {
               >
                 <Crosshair size={16} className="text-green-500" />
               </button>
-              <div className="border-t border-gray-600 my-2"></div>
-              <div className="flex items-center space-x-2">
+              <div className="border-t border-gray-600 my-2 w-full"></div>
+              <div className="flex items-center justify-center space-x-2">
                 <Switch
                   id="flight-toggle"
                   checked={showFlights}
@@ -143,23 +143,23 @@ export default function GlobePage() {
             
             {/* Mobile Layout (vertical) */}
             <div className="block md:hidden">
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col items-center space-y-3">
                 <button 
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors flex items-center justify-center" 
                   title="Zoom In"
                   onClick={() => globeRef.current?.zoomIn()}
                 >
                   <Plus size={18} />
                 </button>
                 <button 
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors flex items-center justify-center" 
                   title="Zoom Out"
                   onClick={() => globeRef.current?.zoomOut()}
                 >
                   <Minus size={18} />
                 </button>
                 <button 
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors" 
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg border border-gray-500 transition-colors flex items-center justify-center" 
                   title="Focus on Current Location"
                   onClick={() => {
                     if (currentLocation) {
@@ -169,9 +169,9 @@ export default function GlobePage() {
                 >
                   <Crosshair size={18} className="text-green-400" />
                 </button>
-                <div className="border-t border-gray-500 my-1"></div>
+                <div className="border-t border-gray-500 my-1 w-full"></div>
                 <button 
-                  className={`p-3 rounded-lg border border-gray-500 transition-colors ${showFlights ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-700 hover:bg-gray-600'}`}
+                  className={`p-3 rounded-lg border border-gray-500 transition-colors flex items-center justify-center ${showFlights ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-700 hover:bg-gray-600'}`}
                   title="Toggle Flights"
                   onClick={() => setShowFlights(!showFlights)}
                 >
