@@ -63,7 +63,28 @@ export default function GlobePage() {
             <h1 className="text-lg md:text-2xl font-bold">sergei.world</h1>
           </div>
           
-
+          {/* Home Button */}
+          <a 
+            href="https://sergei.love" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full transition-all duration-200 hover:scale-105 group"
+            title="Back to Home"
+          >
+            <svg 
+              className="w-5 h-5 md:w-6 md:h-6 text-white group-hover:text-white/90 transition-colors" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" 
+              />
+            </svg>
+          </a>
         </div>
       </header>
 
