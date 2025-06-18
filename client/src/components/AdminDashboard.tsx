@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit2, Trash2, Upload } from "lucide-react";
+import { Plus, Edit2, Trash2 } from "lucide-react";
 import LocationAutocomplete from "./LocationAutocomplete";
 import { insertLocationSchema, type Location, type InsertLocation, type Setting } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -313,30 +313,7 @@ export default function AdminDashboard({ isOpen, onClose, embedded = false }: Ad
         </CardContent>
       </Card>
 
-      {/* Flight Data Upload */}
-      <Card className="bg-space-medium border-gray-600">
-        <CardHeader>
-          <CardTitle className="text-white">Flight Data Upload</CardTitle>
-          <CardDescription className="text-gray-400">
-            Upload a CSV file with flight data to update routes and visited destinations
-          </CardDescription>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadFlightsMutation.isPending}
-            className="bg-blue-500 hover:bg-blue-600 w-fit"
-          >
-            <Upload size={16} className="mr-2" />
-            {uploadFlightsMutation.isPending ? 'Uploading...' : 'Upload CSV'}
-          </Button>
-        </CardHeader>
-      </Card>
+
 
       {/* Travel History */}
       <Card className="bg-space-medium border-gray-600">
