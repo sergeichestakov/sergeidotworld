@@ -221,16 +221,16 @@ export default function GlobePage() {
         </div>
 
         {/* Mobile Stats Bar */}
-        <div className="absolute bottom-4 left-4 z-20 md:hidden">
-          <div className="bg-space-light/80 backdrop-blur-sm rounded-xl px-3 py-2 border border-gray-700/50">
-            <div className="flex items-center space-x-4 text-xs text-gray-300">
+        <div className="fixed bottom-4 left-4 z-50 md:hidden pointer-events-auto">
+          <div className="bg-gray-800/95 backdrop-blur-sm rounded-xl px-3 py-2 border border-gray-600 shadow-lg">
+            <div className="flex items-center space-x-4 text-xs text-white">
               <div className="flex items-center space-x-1">
                 <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
-                <span>{stats.totalVisits}</span>
+                <span className="font-medium">{stats.totalVisits}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <span>🌍</span>
-                <span>{stats.countries}</span>
+                <span className="font-medium">{stats.countries}</span>
               </div>
             </div>
           </div>
