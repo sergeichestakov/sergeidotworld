@@ -1,14 +1,29 @@
-import fs from 'fs';
-import path from 'path';
 import { parseFlightCSV, getUniqueDestinations } from './flight-parser';
 import { storage } from './storage';
 
 export async function importFlightDataOnStartup() {
   try {
-    const csvPath = path.join(process.cwd(), 'attached_assets', 'FlightyExport-2025-06-11_1749659322224.csv');
+    const flightyFileName = process.env.FLIGHTY_EXPORT_FILE_NAME;
     
-    if (!fs.existsSync(csvPath)) {
-      console.log('Flight CSV file not found, skipping auto-import');
+    if (!flightyFileName) {
+      console.log('FLIGHTY_EXPORT_FILE_NAME environment variable not set, skipping auto-import');
+      return;
+    }
+
+    const csvUrl = `https://static.sergei.com/${flightyFileName}`;
+    
+    console.log('Fetching flight data from Cloudflare R2...');
+    
+    // Fetch CSV from Cloudflare R2
+    const response = await fetch(csvUrl);
+    if (!response.ok) {
+      console.log(`Failed to fetch flight data from ${csvUrl} (${response.status}), skipping auto-import`);
+      return;
+    }
+    
+    const csvContent = await response.text();
+    if (!csvContent.trim()) {
+      console.log('Empty CSV file received, skipping auto-import');
       return;
     }
 
@@ -26,7 +41,6 @@ export async function importFlightDataOnStartup() {
 
     console.log('Auto-importing flight destinations...');
     
-    const csvContent = fs.readFileSync(csvPath, 'utf-8');
     const flights = parseFlightCSV(csvContent);
     const destinations = getUniqueDestinations(flights);
     
