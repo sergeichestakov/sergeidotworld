@@ -28,6 +28,7 @@ A dynamic 3D globe web application that visualizes personal global travel histor
 - ✅ Uninstalled multer dependency (no longer needed)
 - ✅ Fixed mobile stats bar visibility with proper z-index and positioning
 - ✅ Centered navigation buttons in bottom right panel for better alignment
+- ✅ Removed unused airport-data-old.ts file
 
 ## Environment Variables
 - `DATABASE_URL`: PostgreSQL connection string (Neon)
